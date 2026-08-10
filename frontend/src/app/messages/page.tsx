@@ -106,24 +106,7 @@ function MessagesView() {
     const trimmed = draft.trim();
     if (!trimmed) return;
     
-    // Ping the AI engine directly since DMs are currently client-side only
-    try {
-      const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "http://localhost:8001";
-      const response = await fetch(`${engineUrl}/moderate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: trimmed, author_id: currentUser.id.toString(), is_dm: true }),
-      });
-      if (response.ok) {
-        const safety = await response.json();
-        if (safety.priority_tier === "1" || safety.priority_tier === "2") {
-          toast(`Message blocked: ${safety.flagged_reasons[0]}`, "error");
-          return;
-        }
-      }
-    } catch {
-      // If AI engine is offline, allow the DM but normally we would block
-    }
+    // Moderation is handled by the Java Backend.
     const msg: DirectMessage = {
       id: Date.now(),
       sender: currentUser,

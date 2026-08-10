@@ -77,11 +77,11 @@ public class MessageController {
             String action = aiResponse.action();
             boolean userPenalized = false;
             
-            if ("urgent_escalate".equals(action)) {
+            if ("REMOVE".equals(action)) {
                 sender.setViolationCount(currentViolations + 2);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.REMOVED);
-            } else if ("remove_review".equals(action)) {
+            } else if ("REVIEW".equals(action)) {
                 sender.setViolationCount(currentViolations + 1);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.FLAGGED);

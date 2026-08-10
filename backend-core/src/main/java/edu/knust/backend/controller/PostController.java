@@ -81,7 +81,7 @@ public class PostController {
             String action = aiResponse.action();
             boolean userPenalized = false;
 
-            if ("urgent_escalate".equals(action)) {
+            if ("REMOVE".equals(action)) {
                 post.setStatus(PostStatus.REMOVED);
                 author.setViolationCount(currentViolations + 2);
                 userPenalized = true;
@@ -92,12 +92,10 @@ public class PostController {
                     "content", post.getContent(),
                     "reason", aiResponse.triggered_categories() != null && !aiResponse.triggered_categories().isEmpty() ? aiResponse.triggered_categories().get(0) : "Severe violation"
                 ));
-            } else if ("remove_review".equals(action) || "hide_review".equals(action)) {
+            } else if ("REVIEW".equals(action)) {
                 post.setStatus(PostStatus.FLAGGED);
-                if ("remove_review".equals(action)) {
-                    author.setViolationCount(currentViolations + 1);
-                    userPenalized = true;
-                }
+                author.setViolationCount(currentViolations + 1);
+                userPenalized = true;
             } else {
                 post.setStatus(PostStatus.PUBLISHED);
             }
@@ -235,11 +233,11 @@ public class PostController {
             String action = aiResponse.action();
             boolean userPenalized = false;
 
-            if ("urgent_escalate".equals(action)) {
+            if ("REMOVE".equals(action)) {
                 author.setViolationCount(currentViolations + 2);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.REMOVED);
-            } else if ("remove_review".equals(action)) {
+            } else if ("REVIEW".equals(action)) {
                 author.setViolationCount(currentViolations + 1);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.FLAGGED);
