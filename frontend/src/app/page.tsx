@@ -219,14 +219,11 @@ function Feed() {
           setPosts(merged); 
         } 
       })
-      .catch(() => { 
+      .catch((err) => { 
         if (active) {
+          showToast(err.message || "Failed to load feed. Check connection.");
           const stored = getStoredPosts() || [];
-          const merged = [...stored];
-          fallbackPosts.forEach(fp => {
-            if (!merged.find(m => m.id === fp.id)) merged.push(fp);
-          });
-          setPosts(merged);
+          setPosts(stored);
         }
       })
       .finally(() => { if (active) setLoading(false); });

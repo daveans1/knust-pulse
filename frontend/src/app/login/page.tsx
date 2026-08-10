@@ -65,48 +65,6 @@ export default function LoginPage() {
       }
     }
 
-    // 2. Seamless local/offline authentication
-    const match = seedUsers.find(
-      (u) => u.email.toLowerCase() === cleanEmail || u.email.split("@")[0].toLowerCase() === cleanEmail.split("@")[0]
-    );
-
-    if (match) {
-      saveSession({
-        token: "local-demo-token",
-        user: match,
-      });
-      router.push("/");
-      return;
-    }
-
-    if (cleanEmail.includes("admin")) {
-      const adminUser = seedUsers.find((u) => u.role === "ADMIN_STAFF") ?? seedUsers[14];
-      saveSession({ token: "local-demo-token", user: adminUser });
-      router.push("/");
-      return;
-    }
-    if (cleanEmail.includes("staff")) {
-      const staffUser = seedUsers.find((u) => u.role === "ACADEMIC_STAFF") ?? seedUsers[13];
-      saveSession({ token: "local-demo-token", user: staffUser });
-      router.push("/");
-      return;
-    }
-
-    if (cleanEmail.includes("@")) {
-      const parts = cleanEmail.split("@")[0].split(".");
-      const name = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
-      const dynamicUser: PulseUser = {
-        id: Math.floor(Math.random() * 9000) + 1000,
-        fullName: name || "KNUST Student",
-        email: cleanEmail,
-        role: cleanEmail.endsWith("@knust.edu.gh") ? "ACADEMIC_STAFF" : "STUDENT",
-        college: "College of Science",
-        bio: "KNUST campus community member",
-      };
-      saveSession({ token: "local-demo-token", user: dynamicUser });
-      router.push("/");
-      return;
-    }
 
     setError("email", "Please enter a valid university email address (e.g. kwame@st.knust.edu.gh).");
     setLoading(false);

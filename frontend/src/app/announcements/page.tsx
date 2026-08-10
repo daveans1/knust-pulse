@@ -57,7 +57,7 @@ function AnnouncementsView() {
   const session = getSession();
   const isStaff = session?.user.role === "ACADEMIC_STAFF" || session?.user.role === "ADMIN_STAFF" || session?.user.role === "PROJECT_STAFF";
 
-  const [items, setItems] = useState<FeedPost[]>(fallbackAnnouncements);
+  const [items, setItems] = useState<FeedPost[]>([]);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const { toast } = useToast();
@@ -66,9 +66,9 @@ function AnnouncementsView() {
     try {
       const feed = await api<FeedPost[]>("/posts");
       const announcements = feed.filter((post) => post.postType === "ANNOUNCEMENT");
-      if (announcements.length) setItems(announcements);
-    } catch (err) {
-      console.error("Failed to load announcements:", err);
+      setItems(announcements);
+    } catch (err: any) {
+      toast(err.message || "Failed to load announcements.", "error");
     }
   };
 
