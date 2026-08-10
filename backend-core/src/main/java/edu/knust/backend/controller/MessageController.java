@@ -64,7 +64,7 @@ public class MessageController {
         edu.knust.backend.entity.ModerationLog log = new edu.knust.backend.entity.ModerationLog();
         log.setItemType("MESSAGE");
         if (aiResponse != null) {
-            log.setAiScore(java.math.BigDecimal.valueOf(aiResponse.overall_risk_score()));
+            log.setAiScore(java.math.BigDecimal.valueOf(aiResponse.overall_risk_score() != null ? aiResponse.overall_risk_score() : 0.0));
             log.setFlaggedReason(aiResponse.triggered_categories() != null && !aiResponse.triggered_categories().isEmpty() ? String.join(", ", aiResponse.triggered_categories()) : null);
         } else {
             log.setAiScore(java.math.BigDecimal.ZERO);
