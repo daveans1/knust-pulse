@@ -1,0 +1,23 @@
+.gradle/
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/**
+
+out/
+*.log
+*.tmp
+*.bak
+*.swp
+
+# IDEA
+*.iml
+.idea/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
