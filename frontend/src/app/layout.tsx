@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import Providers from "./components/providers";
 
+// KNUST Pulse Platform Layout
 export const metadata: Metadata = {
   title: "KNUST Pulse — The voice of campus life",
   description: "Campus social platform for KNUST students, staff, and administrators. Share campus life, connect with communities, and stay informed.",
