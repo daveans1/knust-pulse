@@ -15,5 +15,4 @@ Build a KNUST campus social app with:
 - college-based communities
 - student and staff roles
 - posts, comments, groups, and DMs
-- weekly quiz and leaderboard
 - AI-assisted moderation and safety analytics
