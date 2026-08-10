@@ -281,7 +281,7 @@ export default function GuidelinesPage() {
           ))}
 
           {/* Footer CTA */}
-          <div className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-[#16181c] p-6 text-center">
+          <div className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-black p-6 text-center">
             <p className="font-bold text-[18px] mb-2">Questions about these guidelines?</p>
             <p className="text-[14px] text-[#536471] dark:text-[#71767b] mb-4">Contact the KNUST Pulse admin team through the platform or reach out to your SRC representative.</p>
             {mounted && isLoggedIn ? (

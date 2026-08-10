@@ -124,7 +124,7 @@ export default function CommunityPage() {
       <AppShell>
         <section className="bg-white dark:bg-black min-h-screen border-x border-[#e6ebe5] dark:border-[#2f3336]">
           <div className="flex items-center gap-6 px-4 py-3 sticky top-16 z-20 bg-white/95 dark:bg-black/95 backdrop-blur border-b border-[#e6ebe5] dark:border-[#2f3336]">
-            <Link href="/communities" className="rounded-full p-2 hover:bg-[#e7ece5] dark:hover:bg-[#16181c] transition">
+            <Link href="/communities" className="rounded-full p-2 hover:bg-[#e7ece5] dark:hover:bg-black transition">
               <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-[#0f1419] dark:fill-[#e7e9ea]"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg>
             </Link>
             <div>
@@ -163,17 +163,17 @@ export default function CommunityPage() {
           </div>
 
           <div className="flex border-b border-[#e6ebe5] dark:border-[#2f3336]">
-            <button className="flex-1 py-4 text-[15px] font-bold text-[#0f1419] dark:text-[#e7e9ea] relative hover:bg-[#e7ece5] dark:hover:bg-[#16181c] transition text-center">
+            <button className="flex-1 py-4 text-[15px] font-bold text-[#0f1419] dark:text-[#e7e9ea] relative hover:bg-[#e7ece5] dark:hover:bg-black transition text-center">
               Posts
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-1 bg-[var(--brand-primary)] rounded-full" />
             </button>
-            <button className="flex-1 py-4 text-[15px] font-bold text-[#536471] dark:text-[#71767b] hover:bg-[#e7ece5] dark:hover:bg-[#16181c] transition text-center">About</button>
+            <button className="flex-1 py-4 text-[15px] font-bold text-[#536471] dark:text-[#71767b] hover:bg-[#e7ece5] dark:hover:bg-black transition text-center">About</button>
           </div>
 
           <div>
             {loading && <p className="p-5 text-center text-sm text-[#536471] dark:text-[#71767b]">Loading posts…</p>}
             {posts.map((post) => (
-              <article key={post.id} onClick={() => router.push(`/posts/${post.id}`)} className="cursor-pointer border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-4 py-4 transition hover:bg-[#f7f9f9] dark:hover:bg-[#16181c] sm:px-5">
+              <article key={post.id} onClick={() => router.push(`/posts/${post.id}`)} className="cursor-pointer border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-4 py-4 transition hover:bg-[#f7f9f9] dark:hover:bg-black sm:px-5">
                 <div className="flex gap-3">
                   <div onClick={e => e.stopPropagation()}>
                     <Link href={`/profile/${post.author.id}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-xs font-bold text-white hover:opacity-90">

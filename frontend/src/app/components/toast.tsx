@@ -75,7 +75,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {/* Confirm modal */}
       {confirmState && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-sm mx-4 rounded-2xl bg-white dark:bg-[#16181c] border border-[#e6ebe5] dark:border-[#2f3336] shadow-2xl p-6">
+          <div className="w-full max-w-sm mx-4 rounded-2xl bg-white dark:bg-black border border-[#e6ebe5] dark:border-[#2f3336] shadow-2xl p-6">
             <p className="text-[16px] font-semibold text-[#0f1419] dark:text-[#e7e9ea] mb-6 leading-relaxed">
               {confirmState.message}
             </p>

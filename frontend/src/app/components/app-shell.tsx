@@ -178,7 +178,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-[#16181c] p-2 shadow-2xl">
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black p-2 shadow-2xl">
                   {user && (
                     <div className="px-3 py-2 mb-1 border-b border-[#e6ebe5] dark:border-[#2f3336]">
                       <p className="font-bold text-sm truncate">{user.fullName}</p>
@@ -252,7 +252,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
           <aside className="hidden lg:block lg:pl-4 lg:pt-2">
             <div className="sticky top-20 space-y-4 w-full max-w-[320px]">
 
-              <section className="rounded-2xl bg-[#f7f9f9] dark:bg-[#16181c] overflow-hidden">
+              <section className="rounded-2xl bg-[#f7f9f9] dark:bg-black overflow-hidden">
                 <div className="flex items-center justify-between px-4 pt-4 pb-3">
                   <h2 className="font-bold text-[18px]">Who to follow</h2>
                 </div>
@@ -297,7 +297,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
               </section>
 
               {/* Trending */}
-              <section className="rounded-2xl bg-[#f7f9f9] dark:bg-[#16181c] p-4">
+              <section className="rounded-2xl bg-[#f7f9f9] dark:bg-black p-4">
                 <h2 className="font-bold text-[18px] mb-3">Trending at KNUST</h2>
                 <div className="space-y-3">
                   {[
@@ -332,7 +332,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
               )}
 
               {/* Guidelines link */}
-              <Link href="/guidelines" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-[#16181c] px-4 py-3 text-[13px] text-[#536471] dark:text-[#71767b] hover:bg-[#eff3f4] dark:hover:bg-[#1d1f23] transition">
+              <Link href="/guidelines" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-black px-4 py-3 text-[13px] text-[#536471] dark:text-[#71767b] hover:bg-[#eff3f4] dark:hover:bg-[#1d1f23] transition">
                 <span className="font-bold text-[#1d9bf0]">Community Guidelines</span>
                 <span className="ml-1">· Content policy · What we filter</span>
               </Link>

@@ -138,7 +138,7 @@ function ReportModal({ post, onClose, onReported }: { post: FeedPost; onClose: (
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#16181c] border border-[#e6ebe5] dark:border-[#2f3336] p-6 shadow-2xl space-y-4 text-[#0f1419] dark:text-[#e7e9ea]" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-black border border-[#e6ebe5] dark:border-[#2f3336] p-6 shadow-2xl space-y-4 text-[#0f1419] dark:text-[#e7e9ea]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-[#e6ebe5] dark:border-[#2f3336] pb-3">
           <div className="flex items-center gap-2">
             <span className="text-xl">🚩</span>
@@ -375,7 +375,7 @@ function Feed() {
           <button
             key={item}
             onClick={() => setFilter(item)}
-            className={`flex-1 py-4 text-sm font-bold relative text-center transition hover:bg-[#e7ece5] dark:hover:bg-[#16181c] ${filter === item ? "text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}
+            className={`flex-1 py-4 text-sm font-bold relative text-center transition hover:bg-[#e7ece5] dark:hover:bg-black ${filter === item ? "text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}
           >
             {item}
             {filter === item && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-[var(--brand-primary)] rounded-full" />}
@@ -398,7 +398,7 @@ function Feed() {
             placeholder="What is happening?!"
           />
           {mediaPreview && (
-            <div className="mt-2 flex items-center gap-2 rounded-xl bg-[#eff3f4] dark:bg-[#16181c] px-3 py-2 text-sm text-[#536471] dark:text-[#71767b]">
+            <div className="mt-2 flex items-center gap-2 rounded-xl bg-[#eff3f4] dark:bg-black px-3 py-2 text-sm text-[#536471] dark:text-[#71767b]">
               <span>📎</span>
               <span className="truncate">{mediaFileName}</span>
               <button onClick={() => { setMediaPreview(null); setMediaFileName(""); setUploadedUrl(null); setUploadedType(null); }} className="ml-auto text-red-400 hover:text-red-500">✕</button>
@@ -425,7 +425,7 @@ function Feed() {
       {/* Posts */}
       <div>
         {visible.map((post) => (
-          <article key={post.id} onClick={() => router.push(`/posts/${post.id}`)} className="cursor-pointer border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-4 py-4 transition hover:bg-[#f7f9f9] dark:hover:bg-[#16181c] sm:px-5">
+          <article key={post.id} onClick={() => router.push(`/posts/${post.id}`)} className="cursor-pointer border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-4 py-4 transition hover:bg-[#f7f9f9] dark:hover:bg-black sm:px-5">
             <div className="flex gap-3">
               <div onClick={e => e.stopPropagation()}>
                 <Link href={`/profile/${post.author.id}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-xs font-bold text-white hover:opacity-90">

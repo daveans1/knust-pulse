@@ -154,7 +154,7 @@ function SearchView() {
 
         <div className="flex border-b border-[#e6ebe5] dark:border-[#2f3336]">
           {(["All", "Users", "Posts", "Communities"] as const).map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-4 text-[15px] font-bold relative text-center transition hover:bg-[#e7ece5] dark:hover:bg-[#16181c] ${activeTab === tab ? "text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}>
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-4 text-[15px] font-bold relative text-center transition hover:bg-[#e7ece5] dark:hover:bg-black ${activeTab === tab ? "text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}>
               {tab}
               {activeTab === tab && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-1 bg-[var(--brand-primary)] rounded-full" />}
             </button>
@@ -176,7 +176,7 @@ function SearchView() {
                 );
 
               return (
-                <Link key={`${item.kind}-${item.id}`} href={item.path} className="flex items-center gap-4 px-4 py-4 border-b border-[#e6ebe5] dark:border-[#2f3336] hover:bg-[#f7f9f9] dark:hover:bg-[#16181c] transition">
+                <Link key={`${item.kind}-${item.id}`} href={item.path} className="flex items-center gap-4 px-4 py-4 border-b border-[#e6ebe5] dark:border-[#2f3336] hover:bg-[#f7f9f9] dark:hover:bg-black transition">
                   <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${item.kind === "user" ? "bg-[#1d9bf0]" : item.kind === "community" ? "bg-[#00ba7c]" : "bg-[#f91880]"}`}>
                     {icon}
                   </div>

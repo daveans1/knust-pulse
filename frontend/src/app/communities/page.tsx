@@ -136,7 +136,7 @@ function CommunitiesView() {
       </div>
       <div className="flex border-b border-[#e6ebe5] dark:border-[#2f3336]">
         {(["Joined", "Discover"] as const).map((item) => (
-          <button key={item} onClick={() => setActiveTab(item)} className={`flex-1 hover:bg-[#e7ece5] dark:hover:bg-[#16181c] py-4 text-[15px] font-bold relative text-center transition ${activeTab === item ? "text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}>
+          <button key={item} onClick={() => setActiveTab(item)} className={`flex-1 hover:bg-[#e7ece5] dark:hover:bg-black py-4 text-[15px] font-bold relative text-center transition ${activeTab === item ? "text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}>
             {item}
             {activeTab === item && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-1 bg-[var(--brand-primary)] rounded-full"></div>}
           </button>
@@ -147,7 +147,7 @@ function CommunitiesView() {
         {query.trim() && searchResults.length > 0 ? (
           <div className="border-b border-[#e6ebe5] dark:border-[#2f3336]">
             {searchResults.map((item) => (
-              <Link href={`/communities/${item.title.toLowerCase().replace(/\s+/g, '-')}`} key={item.id} className="flex items-center gap-3 border-b border-[#e6ebe5] dark:border-[#2f3336] p-4 hover:bg-[#f7f9f9] dark:hover:bg-[#16181c] transition cursor-pointer">
+              <Link href={`/communities/${item.title.toLowerCase().replace(/\s+/g, '-')}`} key={item.id} className="flex items-center gap-3 border-b border-[#e6ebe5] dark:border-[#2f3336] p-4 hover:bg-[#f7f9f9] dark:hover:bg-black transition cursor-pointer">
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[var(--brand-primary)] text-sm font-black text-white">
                   {item.title.substring(0, 2).toUpperCase()}
                 </div>
@@ -161,7 +161,7 @@ function CommunitiesView() {
         ) : (
           <div className="border-b border-[#e6ebe5] dark:border-[#2f3336]">
             {matches.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 border-b border-[#e6ebe5] dark:border-[#2f3336] p-4 hover:bg-[#f7f9f9] dark:hover:bg-[#16181c] transition">
+              <div key={item.id} className="flex items-center gap-3 border-b border-[#e6ebe5] dark:border-[#2f3336] p-4 hover:bg-[#f7f9f9] dark:hover:bg-black transition">
                 <Link href={`/communities/${item.name.toLowerCase().replace(/\s+/g, '-')}`} className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-sm font-black text-white hover:opacity-90">
                   {item.badge}
                 </Link>

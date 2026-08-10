@@ -161,7 +161,7 @@ export default function ProfileView({ userId }: { userId?: number }) {
 
         {/* Posts tab */}
         <div className="flex border-b border-[#e6ebe5] dark:border-[#2f3336]">
-          <button className="flex-1 py-4 text-[15px] font-bold text-[#0f1419] dark:text-[#e7e9ea] relative hover:bg-[#e7ece5] dark:hover:bg-[#16181c] transition text-center">
+          <button className="flex-1 py-4 text-[15px] font-bold text-[#0f1419] dark:text-[#e7e9ea] relative hover:bg-[#e7ece5] dark:hover:bg-black transition text-center">
             Posts
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-[var(--brand-primary)] rounded-full" />
           </button>
@@ -174,7 +174,7 @@ export default function ProfileView({ userId }: { userId?: number }) {
           </div>
         ) : (
           posts.map((post) => (
-            <article key={post.id} className="border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-4 py-4 hover:bg-[#f7f9f9] dark:hover:bg-[#16181c] transition sm:px-5">
+            <article key={post.id} className="border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-4 py-4 hover:bg-[#f7f9f9] dark:hover:bg-black transition sm:px-5">
               <div className="flex gap-3">
                 <Link href={`/profile/${post.author.id}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-xs font-bold text-white hover:opacity-90">
                   {initials(post.author)}

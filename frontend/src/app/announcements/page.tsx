@@ -106,7 +106,7 @@ function AnnouncementsView() {
         <div className="p-4 space-y-4">
           {/* Compose — staff only */}
           {isStaff ? (
-            <section className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-[#16181c] p-5 shadow-sm">
+            <section className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black p-5 shadow-sm">
               <h2 className="font-bold text-xl text-[#0f1419] dark:text-[#e7e9ea] mb-3">New announcement</h2>
               <textarea
                 value={draft}
@@ -128,13 +128,13 @@ function AnnouncementsView() {
               </div>
             </section>
           ) : (
-            <div className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-[#16181c] p-4 text-sm text-[#536471] dark:text-[#71767b]">
+            <div className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-black p-4 text-sm text-[#536471] dark:text-[#71767b]">
               📢 Only academic and admin staff can publish announcements. Check back here for campus updates.
             </div>
           )}
 
           {/* Announcements list */}
-          <section className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-[#16181c] overflow-hidden">
+          <section className="rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black overflow-hidden">
             <div className="px-5 py-4 border-b border-[#e6ebe5] dark:border-[#2f3336]">
               <h2 className="font-bold text-xl text-[#0f1419] dark:text-[#e7e9ea]">Recent announcements</h2>
             </div>

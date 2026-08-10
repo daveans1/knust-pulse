@@ -192,7 +192,7 @@ function MessagesView() {
               <button
                 key={c.participant.id}
                 onClick={() => { setActiveId(c.participant.id); setShowList(false); }}
-                className={`flex w-full gap-3 px-4 py-3 text-left transition ${activeId === c.participant.id ? "bg-[#eff3f4] dark:bg-[#16181c] border-r-2 border-[var(--brand-primary)]" : "hover:bg-[#f7f9f9] dark:hover:bg-[#16181c]"}`}
+                className={`flex w-full gap-3 px-4 py-3 text-left transition ${activeId === c.participant.id ? "bg-[#eff3f4] dark:bg-black border-r-2 border-[var(--brand-primary)]" : "hover:bg-[#f7f9f9] dark:hover:bg-black"}`}
               >
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-sm font-bold text-white relative">
                   {initials(c.participant)}

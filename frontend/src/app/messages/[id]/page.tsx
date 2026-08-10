@@ -56,7 +56,7 @@ export default function MessageThreadPage() {
                 <p className="text-xs text-[#71767b]">{targetUser.college}</p>
               </div>
             </div>
-            <button onClick={() => router.push("/messages")} className="rounded-full border border-[#2f3336] px-4 py-1.5 text-[15px] font-bold text-[#e7e9ea] hover:bg-[#16181c] transition">Back</button>
+            <button onClick={() => router.push("/messages")} className="rounded-full border border-[#2f3336] px-4 py-1.5 text-[15px] font-bold text-[#e7e9ea] hover:bg-black transition">Back</button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => {
@@ -71,12 +71,12 @@ export default function MessageThreadPage() {
             })}
           </div>
           <div className="border-t border-[#2f3336] bg-black p-4">
-            <div className="flex gap-2 items-center rounded-full bg-white dark:bg-[#16181c] p-1 pr-2">
+            <div className="flex gap-2 items-center rounded-full bg-white dark:bg-black p-1 pr-2">
               <input 
                 value={draft} 
                 onChange={(event) => setDraft(event.target.value)} 
                 onKeyDown={(event) => event.key === "Enter" && sendMessage()} 
-                className="flex-1 rounded-full border border-[#2f3336] bg-white text-[#0f1419] placeholder-[#71767b] px-4 py-2 text-[15px] outline-none focus:border-[var(--brand-primary)] dark:bg-[#16181c] dark:text-[#e7e9ea]" 
+                className="flex-1 rounded-full border border-[#2f3336] bg-white text-[#0f1419] placeholder-[#71767b] px-4 py-2 text-[15px] outline-none focus:border-[var(--brand-primary)] dark:bg-black dark:text-[#e7e9ea]" 
                 placeholder="Start a new message" 
               />
               <button onClick={sendMessage} className="rounded-full bg-[var(--brand-primary)] px-4 py-2 text-[15px] font-bold text-white hover:opacity-90 disabled:opacity-50" disabled={!draft.trim()}>
