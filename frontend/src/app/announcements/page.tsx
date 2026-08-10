@@ -9,7 +9,7 @@ import { useToast } from "../components/toast";
 const fallbackAnnouncements: FeedPost[] = [
   {
     id: 9001,
-    author: { id: 15, fullName: "Admin Staff", email: "admin@knust.edu.gh", role: "ADMIN_STAFF", college: "Staff Lounge" },
+    author: { id: 15, fullName: "Admin", email: "admin@knust.edu.gh", role: "ADMIN_STAFF", college: "Staff Lounge" },
     communityName: "Announcements",
     content: "Course registration support desk will run from 09:00 to 16:00 at the Admissions Block. All students are encouraged to resolve any outstanding registration issues before the deadline.",
     postType: "ANNOUNCEMENT",
@@ -33,7 +33,7 @@ const fallbackAnnouncements: FeedPost[] = [
   },
   {
     id: 9003,
-    author: { id: 15, fullName: "Admin Staff", email: "admin@knust.edu.gh", role: "ADMIN_STAFF", college: "Staff Lounge" },
+    author: { id: 15, fullName: "Admin", email: "admin@knust.edu.gh", role: "ADMIN_STAFF", college: "Staff Lounge" },
     communityName: "Announcements",
     content: "🔔 Reminder: The library closes at 10pm this week for maintenance. The reading room in Prempeh II will remain open until 8pm. Plan your study sessions accordingly.",
     postType: "ANNOUNCEMENT",

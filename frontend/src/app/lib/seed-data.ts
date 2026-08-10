@@ -33,7 +33,7 @@ export const seedUsers: PulseUser[] = [
   { id: 12, fullName: "Miriam Sarpong", email: "miriam@st.knust.edu.gh", role: "STUDENT", college: "College of Humanities and Social Sciences", bio: "Social Work Level 300. Mental health matters more than GPA. 💙" },
   { id: 13, fullName: "Benedict Ampah", email: "benedict@st.knust.edu.gh", role: "STUDENT", college: "College of Engineering", bio: "Comp Sci + Eng double degree. Send help. Angel Hall. 🤖" },
   { id: 14, fullName: "Dr. Grace Asante", email: "grace.asante@knust.edu.gh", role: "ACADEMIC_STAFF", college: "College of Engineering", bio: "Lecturer, Electrical Engineering. Research focus: sustainable energy." },
-  { id: 15, fullName: "Admin Staff", email: "admin@knust.edu.gh", role: "ADMIN_STAFF", college: "Staff Lounge", bio: "KNUST Pulse Platform Administrator." },
+  { id: 15, fullName: "Admin", email: "admin@knust.edu.gh", role: "ADMIN_STAFF", college: "Staff Lounge", bio: "KNUST Pulse Platform Administrator." },
   { id: 16, fullName: "Portia Kyei", email: "portia@st.knust.edu.gh", role: "STUDENT", college: "College of Science", bio: "Math Level 400. Numbers are honest. People are not 😂. SRC Assembly Member." },
   { id: 17, fullName: "Selorm Baah", email: "selorm@st.knust.edu.gh", role: "STUDENT", college: "College of Science", bio: "Cybersecurity. That guy who tells you to change your passwords. Unity Hall." },
   { id: 18, fullName: "Nadia Kwarteng", email: "nadia@st.knust.edu.gh", role: "STUDENT", college: "College of Humanities and Social Sciences", bio: "Film & Theatre. I direct, act, and edit. Conti Hall Drama rep. 🎬" },
