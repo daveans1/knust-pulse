@@ -39,7 +39,7 @@ const fallbackMetrics: SafetyMetrics = {
 };
 
 const tierColors: Record<string, { bg: string; text: string; label: string; ring: string }> = {
-  "1": { bg: "bg-red-500/10", text: "text-red-500", label: "Urgent Escalate", ring: "ring-red-500/30" },
+  "1": { bg: "bg-red-500/10", text: "text-red-500", label: "Quarantined", ring: "ring-red-500/30" },
   "2": { bg: "bg-orange-500/10", text: "text-orange-400", label: "Remove & Review", ring: "ring-orange-500/30" },
   "3": { bg: "bg-yellow-500/10", text: "text-yellow-400", label: "Hide & Review", ring: "ring-yellow-500/30" },
   "4": { bg: "bg-green-500/10", text: "text-green-400", label: "Flag Passive / Allow", ring: "ring-green-500/30" },
@@ -132,7 +132,7 @@ function SafetyView() {
   };
 
   const tierData = [
-    { label: "Urgent Escalate", count: metrics.urgentCount, color: "text-red-500", bg: "bg-red-500/10" },
+    { label: "Quarantined", count: metrics.urgentCount, color: "text-red-500", bg: "bg-red-500/10" },
     { label: "Remove & Review", count: metrics.highRiskCount, color: "text-orange-500", bg: "bg-orange-500/10" },
     { label: "Hide & Review", count: metrics.mediumRiskCount, color: "text-yellow-500", bg: "bg-yellow-500/10" },
     { label: "Flag Passive", count: metrics.approvedCount, color: "text-green-500", bg: "bg-green-500/10" },

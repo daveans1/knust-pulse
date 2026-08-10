@@ -13,7 +13,7 @@ const fallbackQueue: ModerationQueueItem[] = [];
 type TierConfig = { label: string; text: string; bg: string; icon: React.ReactNode };
 
 const tierConfig: Record<number, TierConfig> = {
-  1: { label: "Urgent Escalate", text: "text-red-500", bg: "bg-red-500/10", icon: <AlertOctagon size={16} /> },
+  1: { label: "Quarantined", text: "text-red-500", bg: "bg-red-500/10", icon: <AlertOctagon size={16} /> },
   2: { label: "Remove & Review", text: "text-orange-500", bg: "bg-orange-500/10", icon: <AlertTriangle size={16} /> },
   3: { label: "Hide & Review", text: "text-yellow-500", bg: "bg-yellow-500/10", icon: <Search size={16} /> },
   4: { label: "Flag Passive", text: "text-blue-500", bg: "bg-blue-500/10", icon: <Eye size={16} /> },
