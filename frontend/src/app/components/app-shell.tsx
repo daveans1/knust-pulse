@@ -129,7 +129,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
   const hideRight = fullWidth || isMessages;
 
   return (
-    <div className="min-h-screen bg-white text-[#0f1419] dark:bg-black dark:text-[#e7e9ea]">
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2f6] text-[#0f1419] dark:from-black dark:to-black dark:bg-black dark:text-[#e7e9ea]">
       {/* ── Header ── */}
       <header className="sticky top-0 z-30 border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white/95 dark:bg-black/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 sm:px-6">
@@ -245,7 +245,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
         </aside>
 
         {/* Main */}
-        <main className="min-w-0 border-x border-[#e6ebe5] dark:border-[#2f3336] min-h-screen">{children}</main>
+        <main className="min-w-0 border-x border-[#e6ebe5] dark:border-[#2f3336] min-h-screen bg-white dark:bg-black shadow-sm">{children}</main>
 
         {/* Right sidebar */}
         {!hideRight && (
