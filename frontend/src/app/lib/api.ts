@@ -40,6 +40,7 @@ export function saveStoredPosts(posts: FeedPost[]) { if (typeof window === "unde
 export async function api<T>(path: string, init: RequestInit = {}, authenticated = true): Promise<T> {
   const session = getSession();
   const headers = new Headers(init.headers);
+  if (!headers.has("Accept")) headers.set("Accept", "application/json");
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   if (authenticated && session?.token) headers.set("Authorization", `Bearer ${session.token}`);
   const response = await fetch(`${baseUrl}${path}`, { ...init, headers });
