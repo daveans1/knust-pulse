@@ -66,7 +66,12 @@ public class PostController {
         Post post = new Post(); post.setAuthor(author); post.setContent(request.content().trim()); post.setMediaUrl(blankToNull(request.mediaUrl())); post.setCreatedAt(LocalDateTime.now()); post.setUpvotes(0); post.setDownvotes(0); post.setViewCount(0L); post.setRepostCount(0L); post.setShareCount(0L);
         post.setPostType(parseType(request.postType(), post.getMediaUrl()));
         Long communityId = request.communityId();
-        Community community = communityId == null ? communities.findFirstByCollege(author.getCollege()).orElse(null) : communities.findById(communityId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Community not found"));
+        Community community = null;
+        if (communityId != null) {
+            community = communities.findById(communityId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Community not found"));
+        } else if (author.getCollege() != null) {
+            community = communities.findFirstByCollege(author.getCollege()).orElse(null);
+        }
         post.setCommunity(community);
 
         // ML Engine Interceptor
