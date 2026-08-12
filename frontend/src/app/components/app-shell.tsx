@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { clearSession, getSession, getTheme, initials, roleLabel, saveTheme, type PulseUser, type ThemeMode } from "../lib/api";
-import { seedUsers } from "../lib/seed-data";
+import { api } from "../lib/api";
 
 type NavItem = { href: string; label: string; icon: React.ReactNode };
 
@@ -41,6 +41,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [searchQuery, setSearchQuery] = useState("");
   const [followed, setFollowed] = useState<Set<number>>(new Set());
+  const [recommendedUsers, setRecommendedUsers] = useState<PulseUser[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const followRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +50,14 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
     const session = getSession();
     if (!session) return;
     setUser(session.user);
+    // Fetch real users for "Who to follow"
+    api<PulseUser[]>("/users")
+      .then((users) => {
+        if (!users?.length) return;
+        const filtered = users.filter(u => u.id !== session.user.id);
+        setRecommendedUsers(filtered.slice(0, 8));
+      })
+      .catch(() => {/* silently skip */});
   }, []);
 
   // Load + apply saved theme (runs once, before transitions enabled)
@@ -93,18 +102,6 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
     ];
   }, [user]);
 
-  // Personalized recommendations
-  const recommendedUsers = useMemo(() => {
-    if (!user) return seedUsers.slice(0, 8);
-    // If admin or staff, recommend other staff
-    if (user.role === "ADMIN_STAFF" || user.role === "ACADEMIC_STAFF") {
-      return seedUsers.filter(u => u.role !== "STUDENT" && u.id !== user.id).slice(0, 5);
-    }
-    // For students, prioritize same college or role
-    const sameCollege = seedUsers.filter(u => u.college === user.college && u.id !== user.id);
-    const others = seedUsers.filter(u => u.college !== user.college && u.id !== user.id);
-    return [...sameCollege, ...others].slice(0, 8);
-  }, [user]);
 
   const signOut = () => { clearSession(); router.push("/login"); };
 
@@ -219,8 +216,15 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-4 rounded-full px-4 py-3 text-[20px] font-semibold transition hover:bg-[#e7e9ea1a] ${active ? "font-bold text-[#1d9bf0]" : "text-[#0f1419] dark:text-[#e7e9ea]"}`}
+                  className={`flex items-center gap-4 rounded-full px-4 py-3 text-[20px] font-semibold transition hover:bg-[#e7e9ea1a] relative ${
+                    active
+                      ? "font-bold text-[#1d9bf0]"
+                      : "text-[#0f1419] dark:text-[#e7e9ea]"
+                  }`}
                 >
+                  {active && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#1d9bf0] rounded-r-full" />
+                  )}
                   <span className={active ? "text-[#1d9bf0]" : ""}>{item.icon}</span>
                   <span>{item.label}</span>
                 </Link>

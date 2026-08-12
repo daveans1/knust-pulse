@@ -8,10 +8,7 @@ import AuthGuard from "./components/auth-guard";
 import AppShell from "./components/app-shell";
 import { useToast } from "./components/toast";
 import { api, getSession, initials, timeAgo, type FeedPost } from "./lib/api";
-import { buildSeedPosts } from "./lib/seed-data";
 import { getStoredPosts, saveStoredPosts } from "./lib/api";
-
-const fallbackPosts: FeedPost[] = buildSeedPosts().slice(0, 20);
 
 export default function HomePage() {
   return (
@@ -186,8 +183,28 @@ function ReportModal({ post, onClose, onReported }: { post: FeedPost; onClose: (
   );
 }
 
+function SkeletonPost() {
+  return (
+    <div className="border-b border-[#e6ebe5] dark:border-[#2f3336] px-4 py-4 sm:px-5">
+      <div className="flex gap-3">
+        <div className="h-10 w-10 rounded-full animate-shimmer shrink-0" />
+        <div className="flex-1 space-y-2 pt-1">
+          <div className="h-3 w-28 rounded-full animate-shimmer" />
+          <div className="h-3 w-full rounded-full animate-shimmer" />
+          <div className="h-3 w-3/4 rounded-full animate-shimmer" />
+          <div className="mt-3 flex gap-6">
+            <div className="h-3 w-10 rounded-full animate-shimmer" />
+            <div className="h-3 w-10 rounded-full animate-shimmer" />
+            <div className="h-3 w-10 rounded-full animate-shimmer" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Feed() {
-  const [posts, setPosts] = useState<FeedPost[]>(fallbackPosts);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postText, setPostText] = useState("");
   const { toast, confirm } = useToast();
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
@@ -207,24 +224,23 @@ function Feed() {
   useEffect(() => {
     let active = true;
     setLoading(true);
+    setPosts([]);
     api<FeedPost[]>(`/posts?filter=${filter === "For you" ? "foryou" : "trending"}`)
-      .then((items) => { 
-        if (active && items?.length) { 
-          // Merge with stored offline posts
-          const stored = getStoredPosts() || [];
-          const merged = [...stored];
-          items.forEach(apiItem => {
-            if (!merged.find(m => m.id === apiItem.id)) merged.push(apiItem);
-          });
-          setPosts(merged); 
-        } 
-      })
-      .catch((err) => { 
-        if (active) {
-          showToast(err.message || "Failed to load feed. Check connection.");
-          const stored = getStoredPosts() || [];
-          setPosts(stored);
+      .then((items) => {
+        if (!active) return;
+        if (items?.length) {
+          setPosts(items);
+          saveStoredPosts(items);
+        } else {
+          setPosts([]);
         }
+      })
+      .catch((err) => {
+        if (!active) return;
+        showToast(err.message || "Failed to load feed. Check connection.");
+        const stored = getStoredPosts() || [];
+        // Only use stored if they came from DB (numeric ids < 1000)
+        setPosts(stored.filter(p => typeof p.id === "number" && p.id < 900000));
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -417,7 +433,19 @@ function Feed() {
         </div>
       </section>
 
-      {loading && <p className="p-5 text-sm text-[#536471] dark:text-[#71767b] text-center">Loading feed…</p>}
+      {loading && (
+        <div>
+          {[...Array(5)].map((_, i) => <SkeletonPost key={i} />)}
+        </div>
+      )}
+
+      {!loading && posts.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+          <div className="text-5xl">✨</div>
+          <h3 className="text-xl font-bold text-[#0f1419] dark:text-[#e7e9ea]">No posts yet</h3>
+          <p className="text-[#536471] dark:text-[#71767b] max-w-xs">Be the first to share something with the KNUST community!</p>
+        </div>
+      )}
 
       {/* Posts */}
       <div>

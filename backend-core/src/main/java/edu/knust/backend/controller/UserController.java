@@ -27,8 +27,21 @@ public class UserController {
     private final UserRepository users; private final PostRepository posts; private final PostLikeRepository likes; private final CommentRepository comments; private final FollowRepository follows;
     public UserController(UserRepository users, PostRepository posts, PostLikeRepository likes, CommentRepository comments, FollowRepository follows) { this.users = users; this.posts = posts; this.likes = likes; this.comments = comments; this.follows = follows; }
 
+    @GetMapping
+    public List<edu.knust.backend.dto.UserSummary> listUsers(@AuthenticationPrincipal User viewer) {
+        return users.findAll().stream()
+            .filter(u -> viewer == null || !u.getId().equals(viewer.getId()))
+            .map(ApiMapper::user)
+            .toList();
+    }
+
     @GetMapping("/{userId}")
     public UserProfileResponse profile(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) { User user = find(userId); return new UserProfileResponse(ApiMapper.user(user), posts.countByAuthorIdAndStatus(userId, PostStatus.PUBLISHED), likes.countLikesReceivedByAuthorId(userId), follows.countByFollowingId(userId), follows.countByFollowerId(userId), viewer != null && follows.existsByFollowerIdAndFollowingId(viewer.getId(), userId)); }
+
+    @GetMapping("/{userId}/basic")
+    public edu.knust.backend.dto.UserSummary basicProfile(@PathVariable @NonNull Long userId) {
+        return ApiMapper.user(find(userId));
+    }
 
     @GetMapping("/{userId}/posts")
     public List<FeedPostResponse> userPosts(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) { return posts.findByAuthorIdAndStatusWithAuthor(userId, PostStatus.PUBLISHED).stream().map(post -> toFeed(post, viewer)).toList(); }

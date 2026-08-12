@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AuthGuard from "../components/auth-guard";
 import AppShell from "../components/app-shell";
-import { api, getSession, getStoredMessages, initials, saveStoredMessages, timeAgo, type Conversation, type DirectMessage } from "../lib/api";
-import { seedUsers } from "../lib/seed-data";
+import { api, getSession, getStoredMessages, initials, saveStoredMessages, timeAgo, type Conversation, type DirectMessage, type PulseUser } from "../lib/api";
 import { useToast } from "../components/toast";
 
 export default function MessagesPage() {
@@ -40,23 +39,27 @@ function MessagesView() {
       .catch(console.error);
   }, []);
 
-  // Pick up ?to= param
+  // Pick up ?to= param — fetch real user from backend
   useEffect(() => {
     if (typeof window === "undefined") return;
     const toId = Number(new URLSearchParams(window.location.search).get("to"));
-    if (toId) {
-      setActiveId(toId);
-      setShowList(false);
-      setConversations((prev) => {
-        if (!prev.find(c => c.participant.id === toId)) {
-          const newUser = seedUsers.find(u => u.id === toId);
-          if (newUser) {
-            return [{ participant: newUser, lastMessage: "", lastMessageAt: new Date().toISOString(), unreadCount: 0 }, ...prev];
-          }
-        }
-        return prev;
-      });
-    }
+    if (!toId) return;
+    setActiveId(toId);
+    setShowList(false);
+    // Check if already in conversations list
+    setConversations((prev) => {
+      if (prev.find(c => c.participant.id === toId)) return prev;
+      // Fetch real user from backend to add to conversation list
+      api<PulseUser>(`/users/${toId}/basic`)
+        .then((user) => {
+          setConversations((p) => {
+            if (p.find(c => c.participant.id === toId)) return p;
+            return [{ participant: user, lastMessage: "", lastMessageAt: new Date().toISOString(), unreadCount: 0 }, ...p];
+          });
+        })
+        .catch(() => {/* user not found, ignore */});
+      return prev;
+    });
   }, []);
 
   // Load conversation thread from local storage + API
