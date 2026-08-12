@@ -111,6 +111,13 @@ label[for],
   100% { transform: scale(1); }
 }
 
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 .animate-fadeInUp     { animation: fadeInUp 400ms ease-out both; }
 .animate-slideInRight { animation: slideInRight 300ms ease-out both; }
 .animate-heartPop     { animation: heartPop 300ms ease-out; }
+.animate-skeleton     { animation: skeletonPulse 1.5s ease-in-out infinite; background-color: var(--surface-hover); }
+

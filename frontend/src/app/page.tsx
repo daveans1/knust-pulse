@@ -416,7 +416,21 @@ function Feed() {
         </div>
       </section>
 
-      {loading && <p className="p-5 text-sm text-[#536471] dark:text-[#71767b] text-center">Loading feed…</p>}
+      {loading ? (
+        <div className="divide-y divide-[#e6ebe5] dark:divide-[#2f3336]">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="px-4 py-4 sm:px-5 flex gap-3">
+              <div className="h-10 w-10 rounded-full animate-skeleton shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-1/3 rounded animate-skeleton" />
+                <div className="h-4 w-5/6 rounded animate-skeleton" />
+                <div className="h-4 w-2/3 rounded animate-skeleton" />
+                <div className="h-32 w-full rounded-2xl animate-skeleton mt-3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {/* Posts */}
       <div>

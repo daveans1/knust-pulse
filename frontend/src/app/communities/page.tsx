@@ -53,6 +53,7 @@ function CommunitiesView() {
   };
 
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState<Community[]>([collegeHub]);
   const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -61,6 +62,7 @@ function CommunitiesView() {
   // Load real communities from backend
   useEffect(() => {
     let active = true;
+    setLoading(true);
     api<any[]>("/communities")
       .then((items) => {
         if (!active || !items) return;
@@ -75,7 +77,8 @@ function CommunitiesView() {
         }));
         setCommunities([collegeHub, ...mapped.filter(m => m.id !== collegeHub.id)]);
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
 
@@ -144,7 +147,21 @@ function CommunitiesView() {
       </div>
 
       <div className="min-h-screen bg-white dark:bg-black">
-        {query.trim() && searchResults.length > 0 ? (
+        {loading ? (
+          <div className="border-b border-[#e6ebe5] dark:border-[#2f3336]">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-3 border-b border-[#e6ebe5] dark:border-[#2f3336] p-4">
+                <div className="h-12 w-12 rounded-full animate-skeleton shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/3 rounded animate-skeleton" />
+                  <div className="h-3 w-1/4 rounded animate-skeleton" />
+                  <div className="h-3 w-3/4 rounded animate-skeleton" />
+                </div>
+                <div className="h-8 w-20 rounded-full animate-skeleton shrink-0" />
+              </div>
+            ))}
+          </div>
+        ) : query.trim() && searchResults.length > 0 ? (
           <div className="border-b border-[#e6ebe5] dark:border-[#2f3336]">
             {searchResults.map((item) => (
               <Link href={`/communities/${item.title.toLowerCase().replace(/\s+/g, '-')}`} key={item.id} className="flex items-center gap-3 border-b border-[#e6ebe5] dark:border-[#2f3336] p-4 hover:bg-[#f7f9f9] dark:hover:bg-black transition cursor-pointer">
