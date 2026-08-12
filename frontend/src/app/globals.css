@@ -121,3 +121,13 @@ label[for],
 .animate-heartPop     { animation: heartPop 300ms ease-out; }
 .animate-skeleton     { animation: skeletonPulse 1.5s ease-in-out infinite; background-color: var(--surface-hover); }
 
+/* Prevent browser autofill yellow background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #16181c inset !important;
+  -webkit-text-fill-color: #e7e9ea !important;
+  caret-color: #e7e9ea;
+}
+

@@ -25,6 +25,10 @@ CREATE INDEX IF NOT EXISTS idx_direct_messages_pair ON direct_messages(sender_id
 
 -- Insert lots of generated users
 INSERT INTO users (full_name, email, password_hash, role, college, bio) VALUES
+('Platform Admin', 'admin@knust.edu.gh', 'demo123', 'ADMIN_STAFF', 'STAFF_ONLY', 'KNUST Pulse Platform Administrator.'),
+('Dr. Grace Asante', 'grace.asante@knust.edu.gh', 'demo123', 'ACADEMIC_STAFF', 'CoE', 'Lecturer, Electrical Engineering. Research focus: sustainable energy.'),
+('Kwame Asante-Boateng', 'kwame@st.knust.edu.gh', 'demo123', 'STUDENT', 'CoS', '3rd year CS. Katanga Hall. Python by day, debug by midnight 💻'),
+('Abena Serwaa', 'abena@st.knust.edu.gh', 'demo123', 'STUDENT', 'CoE', 'Mech Eng Level 400. Almost free. Conti girl 👑'),
 ('Appiah Agyeman', 'appiah.agyeman0@st.knust.edu.gh', 'demo123', 'STUDENT', 'CoHSS', 'Student at CoHSS'),
 ('Yaa Ofori', 'yaa.ofori1@st.knust.edu.gh', 'demo123', 'STUDENT', 'CoHSS', 'Student at CoHSS'),
 ('Darko Mensah', 'darko.mensah2@st.knust.edu.gh', 'demo123', 'STUDENT', 'CoS', 'Student at CoS'),
