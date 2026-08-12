@@ -13,16 +13,7 @@ export type SearchResultItem = { kind: "user" | "post" | "community"; title: str
 export type UserProfileResponse = { user: PulseUser; postCount: number; likesReceived: number; followersCount: number; followingCount: number; isFollowing: boolean };
 export type ModerationResult = { overall_risk_score: number; priority_tier: string; action: string; post_status: string; category_scores: Record<string, number>; vulgarity_word_count: number; vulgarity_density_ratio: number; flagged_reasons: string[]; context_overrides: string[]; safe: boolean; urgent: boolean; triggered_categories: string[]; pii_found: Record<string, string[]>; flagged_links: string[]; highlight_spans: any[] };
 
-export function getApiUrl(): string {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) return envUrl.replace(/\/$/, "");
-  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    return "https://knust-pulse-backend.onrender.com/api";
-  }
-  return "http://localhost:8080/api";
-}
-
-const baseUrl = getApiUrl();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 const sessionKey = "knust-pulse-session";
 const themeKey = "knust-pulse-theme";
 const followsKey = "knust-pulse-follows";
@@ -52,20 +43,14 @@ export async function api<T>(path: string, init: RequestInit = {}, authenticated
   if (!headers.has("Accept")) headers.set("Accept", "application/json");
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   if (authenticated && session?.token) headers.set("Authorization", `Bearer ${session.token}`);
-  const targetUrl = `${getApiUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  let response: Response;
   try {
-    const response = await fetch(targetUrl, { ...init, headers });
-    if (!response.ok) {
-      const body = await response.json().catch(() => null);
-      throw new Error(body?.message || body?.detail || body?.title || `Request failed with status ${response.status}`);
-    }
-    return response.status === 204 ? undefined as T : response.json() as Promise<T>;
-  } catch (err: any) {
-    if (err.name === "TypeError" || err.message?.includes("Failed to fetch") || err.message?.includes("NetworkError")) {
-      throw new Error("Unable to connect to KNUST Pulse servers. Please check your network connection or try again shortly.");
-    }
-    throw err;
+    response = await fetch(`${baseUrl}${path}`, { ...init, headers });
+  } catch {
+    throw new Error("Network error \u2014 unable to reach the server. Check your connection.");
   }
+  if (!response.ok) { const body = await response.json().catch(() => null); throw new Error(body?.message || body?.detail || body?.title || "Something went wrong. Please try again."); }
+  return response.status === 204 ? undefined as T : response.json() as Promise<T>;
 }
 
 export function initials(user: PulseUser) { return user.fullName.split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase(); }

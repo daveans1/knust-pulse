@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import AuthGuard from "./components/auth-guard";
 import AppShell from "./components/app-shell";
 import { useToast } from "./components/toast";
-import { api, getApiUrl, getSession, initials, timeAgo, type FeedPost } from "./lib/api";
+import { api, getSession, initials, timeAgo, type FeedPost } from "./lib/api";
 import { buildSeedPosts } from "./lib/seed-data";
 import { getStoredPosts, saveStoredPosts } from "./lib/api";
 
@@ -321,7 +321,8 @@ function Feed() {
     formData.append("file", file);
     try {
       const token = getSession()?.token;
-      const res = await fetch(`${getApiUrl()}/upload`, {
+      const uploadBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+      const res = await fetch(`${uploadBaseUrl}/upload`, {
         method: "POST",
         body: formData,
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -416,21 +417,7 @@ function Feed() {
         </div>
       </section>
 
-      {loading ? (
-        <div className="divide-y divide-[#e6ebe5] dark:divide-[#2f3336]">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="px-4 py-4 sm:px-5 flex gap-3">
-              <div className="h-10 w-10 rounded-full animate-skeleton shrink-0" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-1/3 rounded animate-skeleton" />
-                <div className="h-4 w-5/6 rounded animate-skeleton" />
-                <div className="h-4 w-2/3 rounded animate-skeleton" />
-                <div className="h-32 w-full rounded-2xl animate-skeleton mt-3" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      {loading && <p className="p-5 text-sm text-[#536471] dark:text-[#71767b] text-center">Loading feed…</p>}
 
       {/* Posts */}
       <div>

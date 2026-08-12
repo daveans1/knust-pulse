@@ -22,15 +22,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        boolean isEmpty = false;
-        try {
-            isEmpty = (users.count() == 0);
-        } catch (Exception e) {
-            System.err.println("Could not query users table count, proceeding with seed: " + e.getMessage());
-            isEmpty = true;
-        }
-
-        if (isEmpty) {
+        if (users.count() == 0) {
             System.out.println("Database is empty! Running seed script...");
             try {
                 ClassPathResource resource = new ClassPathResource("02_social_features.sql");

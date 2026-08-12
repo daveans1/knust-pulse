@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AuthGuard from "../components/auth-guard";
 import AppShell from "../components/app-shell";
-import { api, getSession, getStoredMessages, initials, saveStoredMessages, timeAgo, type Conversation, type DirectMessage, type UserProfileResponse } from "../lib/api";
+import { api, getSession, getStoredMessages, initials, saveStoredMessages, timeAgo, type Conversation, type DirectMessage } from "../lib/api";
 import { seedUsers } from "../lib/seed-data";
 import { useToast } from "../components/toast";
 
@@ -47,28 +47,15 @@ function MessagesView() {
     if (toId) {
       setActiveId(toId);
       setShowList(false);
-      const newUser = seedUsers.find(u => u.id === toId);
-      if (newUser) {
-        setConversations((prev) => {
-          if (!prev.find(c => c.participant.id === toId)) {
+      setConversations((prev) => {
+        if (!prev.find(c => c.participant.id === toId)) {
+          const newUser = seedUsers.find(u => u.id === toId);
+          if (newUser) {
             return [{ participant: newUser, lastMessage: "", lastMessageAt: new Date().toISOString(), unreadCount: 0 }, ...prev];
           }
-          return prev;
-        });
-      } else {
-        api<UserProfileResponse>(`/users/${toId}`)
-          .then(res => {
-            if (res?.user) {
-              setConversations(prev => {
-                if (!prev.find(c => c.participant.id === toId)) {
-                  return [{ participant: res.user, lastMessage: "", lastMessageAt: new Date().toISOString(), unreadCount: 0 }, ...prev];
-                }
-                return prev;
-              });
-            }
-          })
-          .catch(() => {});
-      }
+        }
+        return prev;
+      });
     }
   }, []);
 
@@ -183,35 +170,27 @@ function MessagesView() {
             </Link>
           </div>
           <div className="flex-1 overflow-y-auto divide-y divide-[#e6ebe5] dark:divide-[#2f3336]">
-            {conversations.length === 0 ? (
-              <div className="p-6 text-center text-[#536471] dark:text-[#71767b]">
-                <div className="h-12 w-12 rounded-full bg-[#1d9bf0]/10 text-[#1d9bf0] flex items-center justify-center text-xl mx-auto mb-3">💬</div>
-                <p className="font-bold text-[15px] text-[#0f1419] dark:text-[#e7e9ea]">No messages yet</p>
-                <p className="text-xs mt-1 leading-relaxed">Connect with classmates or start a DM from any user&apos;s profile page.</p>
-              </div>
-            ) : (
-              conversations.map((c) => (
-                <button
-                  key={c.participant.id}
-                  onClick={() => { setActiveId(c.participant.id); setShowList(false); }}
-                  className={`flex w-full gap-3 px-4 py-3 text-left transition ${activeId === c.participant.id ? "bg-[#eff3f4] dark:bg-black border-r-2 border-[var(--brand-primary)]" : "hover:bg-[#f7f9f9] dark:hover:bg-black"}`}
-                >
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-sm font-bold text-white relative">
-                    {initials(c.participant)}
-                    {c.unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[var(--brand-primary)] text-[11px] font-bold text-white flex items-center justify-center border-2 border-white dark:border-black">{c.unreadCount}</span>
-                    )}
+            {conversations.map((c) => (
+              <button
+                key={c.participant.id}
+                onClick={() => { setActiveId(c.participant.id); setShowList(false); }}
+                className={`flex w-full gap-3 px-4 py-3 text-left transition ${activeId === c.participant.id ? "bg-[#eff3f4] dark:bg-black border-r-2 border-[var(--brand-primary)]" : "hover:bg-[#f7f9f9] dark:hover:bg-black"}`}
+              >
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--brand-primary)] text-sm font-bold text-white relative">
+                  {initials(c.participant)}
+                  {c.unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[var(--brand-primary)] text-[11px] font-bold text-white flex items-center justify-center border-2 border-white dark:border-black">{c.unreadCount}</span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex justify-between items-baseline gap-2">
+                    <span className="font-bold text-[15px] text-[#0f1419] dark:text-[#e7e9ea] truncate">{c.participant.fullName}</span>
+                    <span className="text-[12px] text-[#536471] dark:text-[#71767b] whitespace-nowrap">{timeAgo(c.lastMessageAt)}</span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex justify-between items-baseline gap-2">
-                      <span className="font-bold text-[15px] text-[#0f1419] dark:text-[#e7e9ea] truncate">{c.participant.fullName}</span>
-                      <span className="text-[12px] text-[#536471] dark:text-[#71767b] whitespace-nowrap">{timeAgo(c.lastMessageAt)}</span>
-                    </div>
-                    <p className={`mt-0.5 text-[14px] truncate ${c.unreadCount > 0 ? "font-semibold text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}>{c.lastMessage}</p>
-                  </div>
-                </button>
-              ))
-            )}
+                  <p className={`mt-0.5 text-[14px] truncate ${c.unreadCount > 0 ? "font-semibold text-[#0f1419] dark:text-[#e7e9ea]" : "text-[#536471] dark:text-[#71767b]"}`}>{c.lastMessage}</p>
+                </div>
+              </button>
+            ))}
           </div>
         </aside>
 

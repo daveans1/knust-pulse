@@ -98,7 +98,8 @@ function ModerationView() {
     const token = session?.token;
     if (!token) return;
 
-    const eventSource = new EventSource(`${getApiUrl()}/moderation/stream?access_token=${token}`);
+    const sseBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+    const eventSource = new EventSource(`${sseBaseUrl}/moderation/stream?access_token=${token}`);
     
     eventSource.addEventListener("urgent_alert", (event) => {
       try {

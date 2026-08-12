@@ -28,7 +28,8 @@ public class Post {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "post_type", length = 50)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "post_type", columnDefinition = "post_type")
     private PostType postType = PostType.TEXT;
 
     @Column(name = "media_url")
@@ -50,7 +51,8 @@ public class Post {
     private Boolean isAnonymous = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 50)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(columnDefinition = "post_status")
     private PostStatus status = PostStatus.PENDING;
 
     private Integer upvotes = 0;

@@ -93,9 +93,9 @@ function SafetyView() {
   const [backendAvailable, setBackendAvailable] = useState(false);
 
   useEffect(() => {
-    const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "https://knust-pulse-ai.onrender.com";
-    fetch(`${engineUrl}/health`)
-      .then((r) => { if (r.ok) setBackendAvailable(true); })
+    // Check backend health via the Java API (which proxies to the Python engine)
+    api<{ status: string }>("/posts", { method: "GET" })
+      .then(() => setBackendAvailable(true))
       .catch(() => {});
 
     // Load top violators
@@ -113,19 +113,20 @@ function SafetyView() {
     if (!testText.trim()) return;
     setTesting(true);
     try {
-      const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "https://knust-pulse-ai.onrender.com";
-      const response = await fetch(`${engineUrl}/moderate`, {
+      // Create a test post through the backend to get moderation analysis
+      // We use a dedicated test endpoint that runs the ML pipeline without saving
+      const result = await api<ModerationResult>("/moderation/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: testText, author_id: "anonymous" }),
       });
-      if (response.ok) {
-        setTestResult(await response.json());
+      setTestResult(result);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      if (msg.includes("Network error")) {
+        alert("Cannot reach the backend server. Check your connection.");
       } else {
-        alert("AI Engine returned an error. Ensure the Python API is running.");
+        alert(`Analysis failed: ${msg}`);
       }
-    } catch {
-      alert("AI Engine is completely offline. Ensure the Python API is running.");
     } finally {
       setTesting(false);
     }

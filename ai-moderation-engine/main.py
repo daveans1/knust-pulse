@@ -1,5 +1,4 @@
 import re
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -7,13 +6,10 @@ from typing import List, Dict, Any, Optional
 
 app = FastAPI(title="Campus Moderation Engine V3")
 
-# Enable CORS for frontend and backend API
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "*")
-allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
-
+# Enable CORS for the frontend Playground
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins if allowed_origins else ["*"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

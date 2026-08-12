@@ -51,19 +51,28 @@ export default function LoginPage() {
         return;
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unable to log in.";
+      const msg = err instanceof Error ? err.message : "";
+      if (err instanceof TypeError || msg.toLowerCase().includes("network") || msg.toLowerCase().includes("fetch")) {
+        setError("email", "Unable to reach the server. Please check your connection and try again.");
+        setLoading(false);
+        return;
+      }
       if (msg.toLowerCase().includes("email") || msg.toLowerCase().includes("no account")) {
         setError("email", "No account found with that email address. Check your university email.");
-      } else if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("incorrect")) {
-        setError("password", "Incorrect password. Please try again.");
-      } else {
-        setError("email", msg);
+        setLoading(false);
+        return;
       }
+      if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("incorrect")) {
+        setError("password", "Incorrect password. Please try again.");
+        setLoading(false);
+        return;
+      }
+      setError("email", msg || "Unable to reach the server. Please check your connection and try again.");
       setLoading(false);
       return;
     }
 
-    setError("email", "Login attempt failed. Please check your credentials.");
+    setError("email", "Please enter a valid university email address (e.g. kwame@st.knust.edu.gh).");
     setLoading(false);
   };
 
@@ -196,8 +205,6 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
-
-
 
             <button
               type="submit"

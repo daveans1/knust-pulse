@@ -88,6 +88,22 @@ public class ModerationController {
         return toQueueItem(saved);
     }
 
+    /** Proxy endpoint for the Safety page Content Analysis Playground.
+     *  Runs the ML pipeline on arbitrary text without creating a post. */
+    @PostMapping("/analyze")
+    public edu.knust.backend.dto.ModerationEngineResponse analyze(@RequestBody java.util.Map<String, Object> body) {
+        String text = body.getOrDefault("text", "").toString();
+        if (text.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Text is required");
+        }
+        String authorId = body.getOrDefault("author_id", "anonymous").toString();
+        edu.knust.backend.dto.ModerationEngineResponse result = moderationClient.moderateText(text, null, 0, false);
+        if (result == null) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "AI moderation engine is not available");
+        }
+        return result;
+    }
+
     private PostStatus parseDecision(String rawDecision) {
         if (rawDecision == null || rawDecision.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Decision is required");

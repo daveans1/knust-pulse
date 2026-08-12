@@ -25,7 +25,8 @@ public class Community {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 50)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(columnDefinition = "knust_college")
     private KnustCollege college;
 
     @Column(name = "is_private")

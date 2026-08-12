@@ -32,8 +32,6 @@ const adminNav: NavItem[] = [
 ];
 const staffNav: NavItem[] = [{ href: "/announcements", label: "Announcements", icon: <AnnouncementIcon /> }];
 
-// Removed static recommendedUsers
-
 export default function AppShell({ children, fullWidth }: { children: React.ReactNode; fullWidth?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();

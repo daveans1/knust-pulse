@@ -32,34 +32,11 @@ public class AuthController {
         }
 
         User user = users.findByEmail(request.email().trim().toLowerCase())
-            .orElseGet(() -> {
-                String cleanEmail = request.email().trim().toLowerCase();
-                User newUser = new User();
-                newUser.setEmail(cleanEmail);
-                String prefix = cleanEmail.split("@")[0];
-                String cleanName = Character.toUpperCase(prefix.charAt(0)) + prefix.substring(1).replace(".", " ");
-                newUser.setFullName(cleanName);
-                newUser.setPasswordHash(request.password());
-                if (cleanEmail.contains("admin")) {
-                    newUser.setRole(edu.knust.backend.model.UserRole.ADMIN_STAFF);
-                    newUser.setCollege(edu.knust.backend.model.KnustCollege.STAFF_ONLY);
-                } else if (cleanEmail.contains("staff") || cleanEmail.contains("dr.") || !cleanEmail.contains("@st.")) {
-                    newUser.setRole(edu.knust.backend.model.UserRole.ACADEMIC_STAFF);
-                    newUser.setCollege(edu.knust.backend.model.KnustCollege.CoE);
-                } else {
-                    newUser.setRole(edu.knust.backend.model.UserRole.STUDENT);
-                    newUser.setCollege(edu.knust.backend.model.KnustCollege.CoS);
-                }
-                newUser.setBio("Campus community member on KNUST Pulse.");
-                newUser.setCreatedAt(java.time.LocalDateTime.now());
-                return users.save(newUser);
-            });
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No account found with that email address"));
 
         boolean passwordMatches = checkPassword(request.password(), user.getPasswordHash());
         if (!passwordMatches) {
-            // Update password for newly created or legacy user
-            user.setPasswordHash(request.password());
-            users.save(user);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
         }
 
         return new LoginResponse(
