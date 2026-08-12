@@ -3,11 +3,10 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import AuthGuard from "../../components/auth-guard";
 import AppShell from "../../components/app-shell";
 import { api, getSession, initials, timeAgo, type FeedPost } from "../../lib/api";
-import { buildSeedPosts } from "../../lib/seed-data";
 
 function CommentModal({ post, onClose, onCommentAdded }: { post: FeedPost; onClose: () => void; onCommentAdded: (postId: number) => void }) {
   const [text, setText] = useState("");
@@ -65,32 +64,41 @@ export default function CommunityPage() {
   const slug = params?.slug ?? "community";
   const name = slug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
-  const allSeedPosts = useMemo(() => buildSeedPosts(), []);
-  const fallbackPosts = useMemo(() => {
-    const exact = allSeedPosts.filter((p) => p.communityName.toLowerCase() === name.toLowerCase());
-    if (exact.length > 0) return exact;
-    // Fuzzy: any post whose communityName contains a word from the slug
-    const slugWords = slug.split("-").filter(w => w.length > 3);
-    const fuzzy = allSeedPosts.filter((p) => slugWords.some(w => p.communityName.toLowerCase().includes(w)));
-    return fuzzy.length > 0 ? fuzzy : allSeedPosts.slice(0, 8);
-  }, [allSeedPosts, name, slug]);
-
-  const [posts, setPosts] = useState<FeedPost[]>(fallbackPosts);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [joined, setJoined] = useState(false);
   const [commentPost, setCommentPost] = useState<FeedPost | null>(null);
 
   useEffect(() => {
     let active = true;
-    api<FeedPost[]>(`/posts?community=${encodeURIComponent(name)}`)
+    setLoading(true);
+    api<FeedPost[]>("/posts")
       .then((data) => {
         if (!active) return;
-        if (data?.length > 0) setPosts(data);
+        if (Array.isArray(data)) {
+          const exact = data.filter((p) => p.communityName && p.communityName.toLowerCase() === name.toLowerCase());
+          if (exact.length > 0) {
+            setPosts(exact);
+          } else {
+            const slugWords = slug.split("-").filter((w) => w.length > 3);
+            const fuzzy = data.filter((p) => p.communityName && slugWords.some((w) => p.communityName.toLowerCase().includes(w)));
+            setPosts(fuzzy);
+          }
+        } else {
+          setPosts([]);
+        }
       })
-      .catch(() => {})
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [name]);
+      .catch((err) => {
+        console.error("Failed to fetch community posts:", err);
+        if (active) setPosts([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [name, slug]);
 
   const toggleLike = async (postId: number) => {
     setPosts((prev) => prev.map((p) => p.id !== postId ? p : {

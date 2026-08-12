@@ -1,24 +1,73 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AppShell from "../../components/app-shell";
 import AuthGuard from "../../components/auth-guard";
-import { getSession, getStoredMessages, initials, saveStoredMessages, type DirectMessage, type PulseUser } from "../../lib/api";
-import { seedUsers } from "../../lib/seed-data";
+import { api, getSession, getStoredMessages, initials, saveStoredMessages, type DirectMessage, type PulseUser } from "../../lib/api";
 
 export default function MessageThreadPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const session = getSession();
   const targetId = Number(params.id);
-  const targetUser = seedUsers.find((user) => user.id === targetId);
+
+  const [targetUser, setTargetUser] = useState<PulseUser | null>(null);
+  const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState("");
-  const [messages, setMessages] = useState<DirectMessage[]>(() => {
-    if (!targetUser) return [];
-    const stored = getStoredMessages(session?.user.id)[targetId] ?? [];
-    return stored.length ? stored : [{ id: Date.now(), sender: targetUser, recipient: session?.user ?? seedUsers[0], content: "Hi! I saw your profile and wanted to say hello.", read: true, createdAt: new Date().toISOString() }];
-  });
+  const [messages, setMessages] = useState<DirectMessage[]>([]);
+
+  useEffect(() => {
+    if (!targetId || isNaN(targetId)) {
+      setLoading(false);
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    api<PulseUser>(`/users/${targetId}/basic`)
+      .then((user) => {
+        if (!active) return;
+        setTargetUser(user);
+        const stored = getStoredMessages(session?.user.id)[targetId] ?? [];
+        if (stored.length) {
+          setMessages(stored);
+        } else if (user) {
+          setMessages([
+            {
+              id: Date.now(),
+              sender: user,
+              recipient: session?.user ?? user,
+              content: "Hi! I saw your profile and wanted to say hello.",
+              read: true,
+              createdAt: new Date().toISOString(),
+            },
+          ]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch user basic info:", err);
+        if (active) setTargetUser(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [targetId, session?.user.id]);
+
+  if (loading) {
+    return (
+      <AuthGuard>
+        <AppShell>
+          <div className="flex h-[calc(100vh-64px)] items-center justify-center bg-black text-[#e7e9ea]">
+            Loading conversation...
+          </div>
+        </AppShell>
+      </AuthGuard>
+    );
+  }
 
   if (!targetUser) {
     return (
@@ -34,7 +83,7 @@ export default function MessageThreadPage() {
 
   const sendMessage = () => {
     const trimmed = draft.trim();
-    if (!trimmed || !session?.user) return;
+    if (!trimmed || !session?.user || !targetUser) return;
     const nextMessage: DirectMessage = { id: Date.now(), sender: session.user, recipient: targetUser, content: trimmed, read: true, createdAt: new Date().toISOString() };
     const next = [...messages, nextMessage];
     setMessages(next);

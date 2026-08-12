@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <Script id="theme-script" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="bg-white dark:bg-black text-[#0f1419] dark:text-[#e7e9ea] antialiased selection:bg-[#1d9bf0] selection:text-white transition-colors duration-200">
+      <body className="bg-[var(--background)] text-[var(--foreground)] antialiased selection:bg-[var(--brand-primary)] selection:text-white">
         <Providers>
           {children}
         </Providers>

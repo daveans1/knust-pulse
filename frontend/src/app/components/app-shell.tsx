@@ -124,24 +124,24 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
   const hideRight = fullWidth || isMessages;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2f6] text-[#0f1419] dark:from-black dark:to-black dark:bg-black dark:text-[#e7e9ea]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* ── Header ── */}
-      <header className="sticky top-0 z-30 border-b border-[#e6ebe5] dark:border-[#2f3336] bg-white/95 dark:bg-black/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 sm:px-6">
+      <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-lg">
+        <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-4 px-4 sm:px-6">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="KNUST Pulse">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#1d9bf0] text-sm font-black text-white shadow-sm">KP</span>
-            <span className="hidden font-bold text-lg tracking-tight text-[#1d9bf0] sm:block">KNUST Pulse</span>
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 group" aria-label="KNUST Pulse">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-deep)] text-sm font-black text-white shadow-md shadow-[var(--brand-primary)]/20 group-hover:shadow-lg group-hover:shadow-[var(--brand-primary)]/30 transition-shadow">KP</span>
+            <span className="hidden font-bold text-lg tracking-tight bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-deep)] bg-clip-text text-transparent sm:block">KNUST Pulse</span>
           </Link>
 
           {/* Search bar */}
           <form onSubmit={runSearch} className="hidden flex-1 max-w-sm md:block mx-auto">
-            <label className="flex items-center gap-2 rounded-full bg-[#eff3f4] dark:bg-[#202327] px-4 py-2 text-sm text-[#536471] dark:text-[#71767b] focus-within:ring-1 focus-within:ring-[#1d9bf0] focus-within:bg-white dark:focus-within:bg-black transition">
+            <label className="flex items-center gap-2 rounded-full bg-[var(--surface)] px-4 py-2 text-sm text-[var(--muted)] focus-within:ring-2 focus-within:ring-[var(--brand-primary)]/40 focus-within:bg-[var(--background)] transition-all">
               <SearchIcon />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent outline-none text-[#0f1419] dark:text-[#e7e9ea] placeholder-[#536471] dark:placeholder-[#71767b]"
+                className="w-full bg-transparent outline-none text-[var(--foreground)] placeholder-[var(--muted)]"
                 placeholder="Search Pulse"
               />
             </label>
@@ -152,19 +152,17 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
             {/* Theme toggle */}
             <button
               onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
-              className="grid h-9 w-9 place-items-center rounded-full hover:bg-[#e7e9ea1a] transition text-[#536471] dark:text-[#71767b]"
+              className="grid h-9 w-9 place-items-center rounded-full hover:bg-[var(--surface)] transition text-[var(--muted)]"
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
             </button>
 
-            {/* User menu */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((o) => !o)}
-                className="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-[#e7e9ea1a] transition"
-              >
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#1d9bf0] text-xs font-bold text-white shrink-0">
+                className="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-[var(--surface)] transition">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-deep)] text-xs font-bold text-white shrink-0">
                   {user ? initials(user) : "KP"}
                 </span>
                 <span className="hidden max-w-[120px] truncate text-[15px] font-semibold sm:block">
@@ -173,28 +171,28 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black p-2 shadow-2xl">
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-2 shadow-2xl animate-bounceIn">
                   {user && (
-                    <div className="px-3 py-2 mb-1 border-b border-[#e6ebe5] dark:border-[#2f3336]">
+                    <div className="px-3 py-2 mb-1 border-b border-[var(--border)]">
                       <p className="font-bold text-sm truncate">{user.fullName}</p>
-                      <p className="text-[12px] text-[#536471] dark:text-[#71767b]">{roleLabel(user.role)}</p>
+                      <p className="text-[12px] text-[var(--muted)]">{roleLabel(user.role)}</p>
                     </div>
                   )}
-                  <Link href={`/profile/${user?.id}`} onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2 text-[14px] font-semibold hover:bg-[#eff3f4] dark:hover:bg-[#202327] transition">
+                  <Link href={`/profile/${user?.id}`} onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2 text-[14px] font-semibold hover:bg-[var(--surface)] transition">
                     View profile
                   </Link>
-                  <Link href="/guidelines" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2 text-[14px] font-semibold hover:bg-[#eff3f4] dark:hover:bg-[#202327] transition">
+                  <Link href="/guidelines" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2 text-[14px] font-semibold hover:bg-[var(--surface)] transition">
                     Community guidelines
                   </Link>
                   <button
                     onClick={() => { setMenuOpen(false); applyTheme(theme === "dark" ? "light" : "dark"); }}
-                    className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-[14px] font-semibold hover:bg-[#eff3f4] dark:hover:bg-[#202327] transition"
+                    className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-[14px] font-semibold hover:bg-[var(--surface)] transition"
                   >
                     {theme === "dark" ? <><SunIcon /><span>Light mode</span></> : <><MoonIcon /><span>Dark mode</span></>}
                   </button>
                   <button
                     onClick={() => { setMenuOpen(false); signOut(); }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-[14px] font-semibold text-red-500 hover:bg-[#eff3f4] dark:hover:bg-[#202327] transition"
+                    className="w-full rounded-xl px-3 py-2 text-left text-[14px] font-semibold text-red-500 hover:bg-[var(--surface)] transition"
                   >
                     Sign out
                   </button>
@@ -209,23 +207,23 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
       <div className={`mx-auto grid max-w-[1440px] ${hideRight ? "lg:grid-cols-[275px_1fr]" : "lg:grid-cols-[275px_minmax(0,600px)_350px]"}`}>
         {/* Left sidebar */}
         <aside className="hidden lg:flex lg:flex-col lg:items-end lg:pr-4 lg:pt-2">
-          <nav className="sticky top-20 flex flex-col gap-1 w-64">
+          <nav className="sticky top-[58px] flex flex-col gap-0.5 w-64">
             {navItems.map((item) => {
               const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-4 rounded-full px-4 py-3 text-[20px] font-semibold transition hover:bg-[#e7e9ea1a] relative ${
+                  className={`flex items-center gap-4 rounded-full px-4 py-3 text-[18px] font-semibold transition-all hover:bg-[var(--surface)] relative ${
                     active
-                      ? "font-bold text-[#1d9bf0]"
-                      : "text-[#0f1419] dark:text-[#e7e9ea]"
+                      ? "font-bold text-[var(--brand-primary)]"
+                      : "text-[var(--foreground)]"
                   }`}
                 >
                   {active && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#1d9bf0] rounded-r-full" />
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--brand-primary)] rounded-r-full" />
                   )}
-                  <span className={active ? "text-[#1d9bf0]" : ""}>{item.icon}</span>
+                  <span className={active ? "text-[var(--brand-primary)]" : ""}>{item.icon}</span>
                   <span>{item.label}</span>
                 </Link>
               );
@@ -239,7 +237,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
                   router.push('/');
                 }
               }}
-              className="mt-4 rounded-full bg-[#1d9bf0] px-6 py-3 text-[17px] font-bold text-white hover:opacity-90 transition"
+              className="mt-4 w-full rounded-full bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-deep)] px-6 py-3 text-[17px] font-bold text-white hover:opacity-90 hover:shadow-lg hover:shadow-[var(--brand-primary)]/30 transition-all btn-brand"
             >
               Post
             </button>
@@ -247,14 +245,14 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
         </aside>
 
         {/* Main */}
-        <main className="min-w-0 border-x border-[#e6ebe5] dark:border-[#2f3336] min-h-screen bg-white dark:bg-black shadow-sm">{children}</main>
+        <main className="min-w-0 border-x border-[var(--border)] min-h-screen bg-[var(--background)] shadow-sm">{children}</main>
 
         {/* Right sidebar */}
         {!hideRight && (
           <aside className="hidden lg:block lg:pl-4 lg:pt-2">
-            <div className="sticky top-20 space-y-4 w-full max-w-[320px]">
+            <div className="sticky top-[58px] max-h-[calc(100vh-58px)] overflow-y-auto space-y-4 w-full max-w-[320px] pb-6 pr-1">
 
-              <section className="rounded-2xl bg-[#f7f9f9] dark:bg-black overflow-hidden">
+              <section className="rounded-2xl bg-[var(--surface)] overflow-hidden">
                 <div className="flex items-center justify-between px-4 pt-4 pb-3">
                   <h2 className="font-bold text-[18px]">Who to follow</h2>
                 </div>
@@ -265,21 +263,21 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
                     .slice(0, showAllRecs ? undefined : 3)
                     .map((rec) => (
                       <div key={rec.id} className="flex items-center gap-3">
-                        <Link href={`/profile/${rec.id}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1d9bf0] text-xs font-bold text-white hover:opacity-80 transition">
+                        <Link href={`/profile/${rec.id}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-deep)] text-xs font-bold text-white hover:opacity-80 transition">
                           {initials(rec)}
                         </Link>
                         <div className="flex-1 min-w-0">
                           <Link href={`/profile/${rec.id}`} className="block font-bold text-[14px] truncate hover:underline">
                             {rec.fullName}
                           </Link>
-                          <p className="text-[12px] text-[#536471] dark:text-[#71767b] truncate">@{rec.email.split("@")[0]}</p>
+                          <p className="text-[12px] text-[var(--muted)] truncate">@{rec.email.split("@")[0]}</p>
                         </div>
                         <button
                           onClick={() => toggleFollow(rec.id)}
-                          className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-bold transition ${
+                          className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-bold transition-all ${
                             followed.has(rec.id)
-                              ? "border border-[#cfd9de] dark:border-[#536471] text-[#0f1419] dark:text-[#e7e9ea] hover:border-red-400 hover:text-red-400"
-                              : "bg-[#0f1419] dark:bg-[#e7e9ea] text-white dark:text-[#0f1419] hover:opacity-80"
+                              ? "border border-[var(--border)] text-[var(--foreground)] hover:border-red-400 hover:text-red-400"
+                              : "bg-[var(--foreground)] text-[var(--background)] hover:opacity-80"
                           }`}
                         >
                           {followed.has(rec.id) ? "Following" : "Follow"}
@@ -291,7 +289,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
                 {recommendedUsers.length > 3 && (
                   <button 
                     onClick={() => setShowAllRecs(!showAllRecs)} 
-                    className="w-full text-left px-4 py-3 text-[14px] font-bold text-[#1d9bf0] hover:bg-[#e7e9ea1a] transition"
+                    className="w-full text-left px-4 py-3 text-[14px] font-bold text-[var(--brand-primary)] hover:bg-[var(--surface-hover)] transition"
                   >
                     {showAllRecs ? "Show less" : "Show more"}
                   </button>
@@ -299,7 +297,7 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
               </section>
 
               {/* Trending */}
-              <section className="rounded-2xl bg-[#f7f9f9] dark:bg-black p-4">
+              <section className="rounded-2xl bg-[var(--surface)] p-4">
                 <h2 className="font-bold text-[18px] mb-3">Trending at KNUST</h2>
                 <div className="space-y-3">
                   {[
@@ -312,11 +310,11 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
                     <Link
                       key={t.tag}
                       href={`/search?q=${encodeURIComponent(t.term)}`}
-                      className="block rounded-lg -mx-2 px-2 py-1.5 hover:bg-[#e7e9ea1a] transition"
+                      className="block rounded-xl -mx-2 px-3 py-2 hover:bg-[var(--surface-hover)] transition"
                     >
-                      <p className="text-[12px] text-[#536471] dark:text-[#71767b]">Trending · KNUST</p>
+                      <p className="text-[12px] text-[var(--muted)]">Trending · KNUST</p>
                       <p className="font-bold text-[15px]">{t.tag}</p>
-                      <p className="text-[12px] text-[#536471] dark:text-[#71767b]">{t.posts}</p>
+                      <p className="text-[12px] text-[var(--muted)]">{t.posts}</p>
                     </Link>
                   ))}
                 </div>
@@ -334,8 +332,8 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
               )}
 
               {/* Guidelines link */}
-              <Link href="/guidelines" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-[#e6ebe5] dark:border-[#2f3336] bg-[#f7f9f9] dark:bg-black px-4 py-3 text-[13px] text-[#536471] dark:text-[#71767b] hover:bg-[#eff3f4] dark:hover:bg-[#1d1f23] transition">
-                <span className="font-bold text-[#1d9bf0]">Community Guidelines</span>
+              <Link href="/guidelines" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[13px] text-[var(--muted)] hover:bg-[var(--surface-hover)] transition">
+                <span className="font-bold text-[var(--brand-primary)]">Community Guidelines</span>
                 <span className="ml-1">· Content policy · What we filter</span>
               </Link>
             </div>
@@ -344,14 +342,14 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-[#e6ebe5] dark:border-[#2f3336] bg-white dark:bg-black px-2 py-2 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-[var(--border)] bg-[var(--background)]/95 backdrop-blur-lg px-2 py-2 lg:hidden">
         {navItems.slice(0, 5).map((item) => {
           const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`grid place-items-center gap-0.5 rounded-lg px-3 py-1 text-[10px] font-bold transition ${active ? "text-[#1d9bf0]" : "text-[#536471] dark:text-[#71767b]"}`}
+              className={`grid place-items-center gap-0.5 rounded-lg px-3 py-1 text-[10px] font-bold transition-all ${active ? "text-[var(--brand-primary)]" : "text-[var(--muted)]"}`}
             >
               <span>{item.icon}</span>
               {item.label.split(" ")[0]}

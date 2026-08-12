@@ -4,22 +4,26 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AppShell from "./app-shell";
-import { api, getSession, initials, isFollowing, roleLabel, timeAgo, toggleFollow, type FeedPost, type PulseUser, type UserProfileResponse } from "../lib/api";
-import { seedUsers } from "../lib/seed-data";
+import { api, getSession, initials, roleLabel, timeAgo, toggleFollow, type FeedPost, type PulseUser, type UserProfileResponse } from "../lib/api";
 
 export default function ProfileView({ userId }: { userId?: number }) {
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [following, setFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
-  const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const currentSession = getSession();
   const currentId = currentSession?.user.id;
   const targetId = userId ?? currentId;
 
   useEffect(() => {
-    if (!targetId) return;
-    setLoadError(false);
+    if (!targetId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setLoadError(null);
 
     api<UserProfileResponse>(`/users/${targetId}`)
       .then((data) => {
@@ -27,36 +31,37 @@ export default function ProfileView({ userId }: { userId?: number }) {
         setFollowing(data.isFollowing);
         setFollowersCount(data.followersCount);
       })
-      .catch(() => {
-        // Build a fallback profile from local seed data
-        setLoadError(true);
-        const seedUser = seedUsers.find((u) => u.id === targetId) ?? currentSession?.user;
-        if (seedUser) {
-          const builtProfile: UserProfileResponse = {
-            user: seedUser,
-            postCount: 0,
-            likesReceived: 0,
-            followersCount: 0,
-            followingCount: 0,
-            isFollowing: isFollowing(targetId, currentId ?? 1),
-          };
-          setProfile(builtProfile);
-          setFollowing(builtProfile.isFollowing);
-          setFollowersCount(builtProfile.followersCount);
-        }
+      .catch((err) => {
+        setLoadError(err instanceof Error ? err.message : "Failed to load profile.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
 
     api<FeedPost[]>(`/users/${targetId}/posts`)
       .then(setPosts)
-      .catch(() => {});
-  }, [targetId, currentId, currentSession?.user]);
+      .catch(() => {
+        setPosts([]);
+      });
+  }, [targetId]);
 
-  if (!profile) {
+  if (loading) {
     return (
       <AppShell>
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
           <div className="h-10 w-10 rounded-full bg-[var(--brand-primary)] animate-pulse mb-4" />
           <p className="text-[#536471] dark:text-[#71767b]">Loading profile…</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (loadError || !profile) {
+    return (
+      <AppShell>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+          <p className="text-lg font-bold text-[#0f1419] dark:text-[#e7e9ea] mb-2">User not found or failed to load profile.</p>
+          <p className="text-[#536471] dark:text-[#71767b]">{loadError || "Profile data is unavailable."}</p>
         </div>
       </AppShell>
     );
@@ -154,9 +159,6 @@ export default function ProfileView({ userId }: { userId?: number }) {
               </span>
             )}
           </div>
-          {loadError && (
-            <p className="mt-2 text-[12px] text-yellow-600 dark:text-yellow-400">Showing local profile — backend unavailable</p>
-          )}
         </div>
 
         {/* Posts tab */}

@@ -5,8 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "../../components/app-shell";
 import AuthGuard from "../../components/auth-guard";
-import { api, getSession, getStoredPosts, saveStoredPosts, timeAgo, initials, type FeedPost, type Comment } from "../../lib/api";
-import { buildSeedPosts } from "../../lib/seed-data";
+import { api, getSession, timeAgo, initials, type FeedPost, type Comment } from "../../lib/api";
 import { useToast } from "../../components/toast";
 
 export default function PostDetailPage() {
@@ -28,63 +27,54 @@ function PostDetailView() {
   const [submitting, setSubmitting] = useState(false);
   const { toast, confirm } = useToast();
 
-  // Load post logic
+  // Load post logic from API
   useEffect(() => {
-    let active = true;
-    const allStored = getStoredPosts() || [];
-    const seed = buildSeedPosts();
-    // Prefer stored post in case it was created offline
-    let found = allStored.find(p => p.id === id) || seed.find(p => p.id === id);
-
-    if (found) {
-      setPost(found);
+    if (!id || isNaN(id)) {
       setLoading(false);
-      api<Comment[]>(`/posts/${id}/comments`).then(comments => {
-        if (active) setPost(prev => prev ? { ...prev, comments } : prev);
-      }).catch(() => {});
-    } else {
-      api<FeedPost>(`/posts/${id}`).then(data => {
-        if (active) { 
-          setPost(data); 
-          setLoading(false); 
-          api<Comment[]>(`/posts/${id}/comments`).then(comments => {
-            if (active) setPost(prev => prev ? { ...prev, comments } : prev);
-          }).catch(() => {});
-        }
-      }).catch(() => {
-        if (active) setLoading(false);
-      });
+      return;
     }
 
-    return () => { active = false; };
+    let active = true;
+    setLoading(true);
+
+    Promise.all([
+      api<FeedPost>(`/posts/${id}`),
+      api<Comment[]>(`/posts/${id}/comments`).catch(() => [] as Comment[]),
+    ])
+      .then(([postData, commentsData]) => {
+        if (active) {
+          setPost({ ...postData, comments: commentsData });
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setPost(null);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [id]);
 
   const submitReply = async () => {
     if (!replyText.trim() || !post) return;
-    
 
     setSubmitting(true);
-    const session = getSession();
-    
-    const newComment: Comment = {
-      id: Date.now(),
-      author: session!.user,
-      content: replyText.trim(),
-      verifiedAnswer: false,
-      createdAt: new Date().toISOString(),
-      likeCount: 0,
-      likedByCurrentUser: false
-    };
-
-    // Attempt API first
     try {
-      const responseComment = await api<Comment>(`/posts/${post.id}/comments`, { method: "POST", body: JSON.stringify({ content: replyText.trim() }) });
-      // On success, update post state with real comment
-      const updatedPost = { ...post };
-      if (!updatedPost.comments) updatedPost.comments = [];
-      updatedPost.comments = [responseComment, ...updatedPost.comments];
-      updatedPost.commentCount = (updatedPost.commentCount || 0) + 1;
-      setPost(updatedPost);
+      const responseComment = await api<Comment>(`/posts/${post.id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ content: replyText.trim() }),
+      });
+      const updatedComments = [responseComment, ...(post.comments || [])];
+      setPost({
+        ...post,
+        comments: updatedComments,
+        commentCount: (post.commentCount || 0) + 1,
+      });
+      setReplyText("");
     } catch (err: any) {
       toast(err.message || "Failed to post comment", "error");
     } finally {
@@ -96,26 +86,16 @@ function PostDetailView() {
     if (!post) return;
     if (!(await confirm("Are you sure you want to delete this reply?"))) return;
 
-    const updatedComments = (post.comments || []).filter((c) => c.id !== commentId);
-    const updatedPost = {
-      ...post,
-      comments: updatedComments,
-      commentCount: Math.max(0, (post.commentCount || 1) - 1),
-    };
-
-    setPost(updatedPost);
-
-    // Save offline store
-    const stored = getStoredPosts() || [];
-    const idx = stored.findIndex((p) => p.id === updatedPost.id);
-    if (idx >= 0) stored[idx] = updatedPost;
-    else stored.push(updatedPost);
-    saveStoredPosts(stored);
-
     try {
       await api(`/posts/${post.id}/comments/${commentId}`, { method: "DELETE" });
-    } catch {
-      // Offline fallback already persisted to localStorage
+      const updatedComments = (post.comments || []).filter((c) => c.id !== commentId);
+      setPost({
+        ...post,
+        comments: updatedComments,
+        commentCount: Math.max(0, (post.commentCount || 1) - 1),
+      });
+    } catch (err: any) {
+      toast(err.message || "Failed to delete reply", "error");
     }
   };
 

@@ -6,71 +6,13 @@ import { useSearchParams, useRouter } from "next/navigation";
 import AppShell from "../components/app-shell";
 import AuthGuard from "../components/auth-guard";
 import { api, type SearchResultItem } from "../lib/api";
-import { buildSeedPosts, seedUsers, seedCommunities } from "../lib/seed-data";
-
-function buildLocalResults(query: string): SearchResultItem[] {
-  const q = query.toLowerCase().trim();
-  if (!q) return [];
-  const results: SearchResultItem[] = [];
-
-  // Search posts
-  buildSeedPosts().forEach((post) => {
-    const score = (
-      (post.content.toLowerCase().includes(q) ? 3 : 0) +
-      (post.communityName.toLowerCase().includes(q) ? 1 : 0) +
-      (post.author.fullName.toLowerCase().includes(q) ? 1 : 0)
-    );
-    if (score > 0) {
-      results.push({
-        kind: "post",
-        id: post.id,
-        title: post.content.slice(0, 80) + (post.content.length > 80 ? "…" : ""),
-        subtitle: `${post.author.fullName} · ${post.communityName}`,
-        path: `/posts/${post.id}`,
-      });
-    }
-  });
-
-  // Search users
-  seedUsers.forEach((user) => {
-    const matches =
-      user.fullName.toLowerCase().includes(q) ||
-      user.email.split("@")[0].toLowerCase().includes(q) ||
-      (user.bio?.toLowerCase().includes(q) ?? false) ||
-      user.college.toLowerCase().includes(q);
-    if (matches) {
-      results.push({
-        kind: "user",
-        id: user.id,
-        title: user.fullName,
-        subtitle: `@${user.email.split("@")[0]} · ${user.college}`,
-        path: `/profile/${user.id}`,
-      });
-    }
-  });
-
-  // Search communities
-  seedCommunities.forEach((c) => {
-    if (c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)) {
-      results.push({
-        kind: "community",
-        id: c.id,
-        title: c.name,
-        subtitle: c.description,
-        path: `/communities/${c.slug}`,
-      });
-    }
-  });
-
-  return results;
-}
 
 function SearchView() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [debouncedQuery, setDebouncedQuery] = useState(query);
-  const [apiResults, setApiResults] = useState<SearchResultItem[] | null>(null);
+  const [results, setResults] = useState<SearchResultItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"All" | "Users" | "Posts" | "Communities">("All");
 
@@ -94,10 +36,14 @@ function SearchView() {
     router.replace(newUrl, { scroll: false });
   };
 
-  // Try API, fall back to local seed search (uses debounced query)
+  // Fetch search results exclusively from backend API
   useEffect(() => {
     const trimmed = debouncedQuery.trim();
-    if (!trimmed) { setApiResults([]); setLoading(false); return; }
+    if (!trimmed) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
 
     let active = true;
     setLoading(true);
@@ -105,33 +51,30 @@ function SearchView() {
     api<SearchResultItem[]>(`/search?q=${encodeURIComponent(trimmed)}`)
       .then((data) => {
         if (!active) return;
-        setApiResults(data?.length ? data : null);
+        setResults(data ?? []);
       })
-      .catch(() => {
-        if (active) setApiResults(null);
+      .catch((err) => {
+        console.error("Failed to fetch search results:", err);
+        if (active) setResults([]);
       })
       .finally(() => {
         if (active) setLoading(false);
       });
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [debouncedQuery]);
 
-  // Use API results if available; otherwise use local seed search
-  const results = useMemo(() => {
-    const trimmed = query.trim();
-    if (!trimmed) return [];
-    if (apiResults && apiResults.length > 0) return apiResults;
-    return buildLocalResults(trimmed);
-  }, [query, apiResults]);
-
-  const filteredResults = results.filter((item) => {
-    if (activeTab === "All") return true;
-    if (activeTab === "Users") return item.kind === "user";
-    if (activeTab === "Posts") return item.kind === "post";
-    if (activeTab === "Communities") return item.kind === "community";
-    return true;
-  });
+  const filteredResults = useMemo(() => {
+    return results.filter((item) => {
+      if (activeTab === "All") return true;
+      if (activeTab === "Users") return item.kind === "user";
+      if (activeTab === "Posts") return item.kind === "post";
+      if (activeTab === "Communities") return item.kind === "community";
+      return true;
+    });
+  }, [results, activeTab]);
 
   return (
     <AppShell>
