@@ -27,8 +27,7 @@ public class Report {
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(columnDefinition = "report_status")
+    @Column(length = 50)
     private ReportStatus status = ReportStatus.OPEN;
 
     @Column(name = "created_at")

@@ -34,8 +34,7 @@ public class ModerationLog {
     private User reviewedBy;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "final_decision", columnDefinition = "post_status")
+    @Column(name = "final_decision", length = 50)
     private PostStatus finalDecision;
 
     @Column(name = "created_at")
