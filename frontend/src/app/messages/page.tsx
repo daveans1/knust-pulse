@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AuthGuard from "../components/auth-guard";
 import AppShell from "../components/app-shell";
-import { api, getSession, getStoredMessages, initials, saveStoredMessages, timeAgo, type Conversation, type DirectMessage } from "../lib/api";
-// Removed checkSafetyLocal import
+import { api, getSession, getStoredMessages, initials, saveStoredMessages, timeAgo, type Conversation, type DirectMessage, type UserProfileResponse } from "../lib/api";
 import { seedUsers } from "../lib/seed-data";
 import { useToast } from "../components/toast";
 
@@ -48,15 +47,28 @@ function MessagesView() {
     if (toId) {
       setActiveId(toId);
       setShowList(false);
-      setConversations((prev) => {
-        if (!prev.find(c => c.participant.id === toId)) {
-          const newUser = seedUsers.find(u => u.id === toId);
-          if (newUser) {
+      const newUser = seedUsers.find(u => u.id === toId);
+      if (newUser) {
+        setConversations((prev) => {
+          if (!prev.find(c => c.participant.id === toId)) {
             return [{ participant: newUser, lastMessage: "", lastMessageAt: new Date().toISOString(), unreadCount: 0 }, ...prev];
           }
-        }
-        return prev;
-      });
+          return prev;
+        });
+      } else {
+        api<UserProfileResponse>(`/users/${toId}`)
+          .then(res => {
+            if (res?.user) {
+              setConversations(prev => {
+                if (!prev.find(c => c.participant.id === toId)) {
+                  return [{ participant: res.user, lastMessage: "", lastMessageAt: new Date().toISOString(), unreadCount: 0 }, ...prev];
+                }
+                return prev;
+              });
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, []);
 

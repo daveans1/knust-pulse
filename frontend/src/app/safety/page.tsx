@@ -93,7 +93,7 @@ function SafetyView() {
   const [backendAvailable, setBackendAvailable] = useState(false);
 
   useEffect(() => {
-    const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "http://localhost:8001";
+    const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "https://knust-pulse-ai.onrender.com";
     fetch(`${engineUrl}/health`)
       .then((r) => { if (r.ok) setBackendAvailable(true); })
       .catch(() => {});
@@ -113,7 +113,7 @@ function SafetyView() {
     if (!testText.trim()) return;
     setTesting(true);
     try {
-      const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "http://localhost:8001";
+      const engineUrl = process.env.NEXT_PUBLIC_MODERATION_ENGINE_URL || "https://knust-pulse-ai.onrender.com";
       const response = await fetch(`${engineUrl}/moderate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

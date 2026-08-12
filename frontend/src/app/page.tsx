@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import AuthGuard from "./components/auth-guard";
 import AppShell from "./components/app-shell";
 import { useToast } from "./components/toast";
-import { api, getSession, initials, timeAgo, type FeedPost } from "./lib/api";
+import { api, getApiUrl, getSession, initials, timeAgo, type FeedPost } from "./lib/api";
 import { buildSeedPosts } from "./lib/seed-data";
 import { getStoredPosts, saveStoredPosts } from "./lib/api";
 
@@ -321,8 +321,7 @@ function Feed() {
     formData.append("file", file);
     try {
       const token = getSession()?.token;
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-      const res = await fetch(`${baseUrl}/upload`, {
+      const res = await fetch(`${getApiUrl()}/upload`, {
         method: "POST",
         body: formData,
         headers: token ? { Authorization: `Bearer ${token}` } : {},

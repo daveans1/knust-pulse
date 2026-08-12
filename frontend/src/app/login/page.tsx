@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, getSession, saveSession, type PulseUser } from "../lib/api";
-import { seedUsers } from "../lib/seed-data";
 
 type LoginResult = PulseUser & { token: string };
 
@@ -52,21 +51,19 @@ export default function LoginPage() {
         return;
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "";
+      const msg = err instanceof Error ? err.message : "Unable to log in.";
       if (msg.toLowerCase().includes("email") || msg.toLowerCase().includes("no account")) {
         setError("email", "No account found with that email address. Check your university email.");
-        setLoading(false);
-        return;
-      }
-      if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("incorrect")) {
+      } else if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("incorrect")) {
         setError("password", "Incorrect password. Please try again.");
-        setLoading(false);
-        return;
+      } else {
+        setError("email", msg);
       }
+      setLoading(false);
+      return;
     }
 
-
-    setError("email", "Please enter a valid university email address (e.g. kwame@st.knust.edu.gh).");
+    setError("email", "Login attempt failed. Please check your credentials.");
     setLoading(false);
   };
 
