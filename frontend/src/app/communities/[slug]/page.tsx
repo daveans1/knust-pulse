@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import AuthGuard from "../../components/auth-guard";
 import AppShell from "../../components/app-shell";
+import { useToast } from "../../components/toast";
 import { api, getSession, initials, timeAgo, type FeedPost } from "../../lib/api";
 
 function CommentModal({ post, onClose, onCommentAdded }: { post: FeedPost; onClose: () => void; onCommentAdded: (postId: number) => void }) {
@@ -120,8 +121,22 @@ export default function CommunityPage() {
     } catch {}
   };
 
+  const { toast, confirm } = useToast();
+
   const handleCommentAdded = (postId: number) => {
     setPosts((prev) => prev.map((p) => p.id !== postId ? p : { ...p, commentCount: p.commentCount + 1 }));
+  };
+
+  const removePost = async (postId: number) => {
+    const ok = await confirm("Are you sure you want to delete this post?");
+    if (!ok) return;
+    try {
+      await api(`/posts/${postId}`, { method: "DELETE" });
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      toast("Post deleted successfully", "success");
+    } catch (err: any) {
+      toast(err?.message || "Failed to delete post", "error");
+    }
   };
 
   return (
@@ -189,10 +204,19 @@ export default function CommunityPage() {
                     </Link>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-1 text-[15px]" onClick={e => e.stopPropagation()}>
-                      <Link href={`/profile/${post.author.id}`} className="font-bold text-[#0f1419] dark:text-[#e7e9ea] hover:underline">{post.author.fullName}</Link>
-                      <span className="text-[#536471] dark:text-[#71767b]">@{post.author.email.split("@")[0]}</span>
-                      <span className="text-[#536471] dark:text-[#71767b]">· {timeAgo(post.createdAt)}</span>
+                    <div className="flex flex-wrap items-center justify-between text-[15px]" onClick={e => e.stopPropagation()}>
+                      <div className="flex flex-wrap items-center gap-x-1">
+                        <Link href={`/profile/${post.author.id}`} className="font-bold text-[#0f1419] dark:text-[#e7e9ea] hover:underline">{post.author.fullName}</Link>
+                        <span className="text-[#536471] dark:text-[#71767b]">@{post.author.email.split("@")[0]}</span>
+                        <span className="text-[#536471] dark:text-[#71767b]">· {timeAgo(post.createdAt)}</span>
+                      </div>
+                      {session && (session.user.id === post.author.id || session.user.role === "ADMIN_STAFF" || session.user.role === "PROJECT_STAFF") && (
+                        <button onClick={() => removePost(post.id)} className="group hover:text-red-500 transition" title="Delete post">
+                          <div className="rounded-full p-1.5 group-hover:bg-red-500/10">
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><g><path d="M8 5.5V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v1.5h4.5v2h-1.5v13.5c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7.5H3.5v-2H8zm2-1.5v1.5h4V4h-4zM7 7.5v13.5h10V7.5H7zM9.5 10v9h2v-9h-2zm3 0v9h2v-9h-2z"></path></g></svg>
+                          </div>
+                        </button>
+                      )}
                     </div>
                     <p className="mt-1 whitespace-pre-wrap text-[15px] leading-relaxed text-[#0f1419] dark:text-[#e7e9ea]">{post.content}</p>
                     {post.mediaUrl && post.postType === "IMAGE" && (

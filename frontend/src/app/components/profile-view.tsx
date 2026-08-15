@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AppShell from "./app-shell";
+import { useToast } from "./toast";
 import { api, getSession, initials, roleLabel, timeAgo, toggleFollow, type FeedPost, type PulseUser, type UserProfileResponse } from "../lib/api";
 
 export default function ProfileView({ userId }: { userId?: number }) {
@@ -13,9 +14,23 @@ export default function ProfileView({ userId }: { userId?: number }) {
   const [followersCount, setFollowersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const { toast, confirm } = useToast();
   const currentSession = getSession();
   const currentId = currentSession?.user.id;
   const targetId = userId ?? currentId;
+
+  const removePost = async (postId: number) => {
+    const ok = await confirm("Are you sure you want to delete this post?");
+    if (!ok) return;
+    try {
+      await api(`/posts/${postId}`, { method: "DELETE" });
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      setProfile((prev) => prev ? { ...prev, postCount: Math.max(0, prev.postCount - 1) } : prev);
+      toast("Post deleted successfully", "success");
+    } catch (err: any) {
+      toast(err?.message || "Failed to delete post", "error");
+    }
+  };
 
   useEffect(() => {
     if (!targetId) {
@@ -182,10 +197,19 @@ export default function ProfileView({ userId }: { userId?: number }) {
                   {initials(post.author)}
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-1 text-[15px]">
-                    <Link href={`/profile/${post.author.id}`} className="font-bold text-[#0f1419] dark:text-[#e7e9ea] hover:underline">{post.author.fullName}</Link>
-                    <span className="text-[#536471] dark:text-[#71767b]">@{post.author.email.split("@")[0]}</span>
-                    <span className="text-[#536471] dark:text-[#71767b]">· {timeAgo(post.createdAt)}</span>
+                  <div className="flex flex-wrap items-center justify-between text-[15px]">
+                    <div className="flex flex-wrap items-center gap-x-1">
+                      <Link href={`/profile/${post.author.id}`} className="font-bold text-[#0f1419] dark:text-[#e7e9ea] hover:underline">{post.author.fullName}</Link>
+                      <span className="text-[#536471] dark:text-[#71767b]">@{post.author.email.split("@")[0]}</span>
+                      <span className="text-[#536471] dark:text-[#71767b]">· {timeAgo(post.createdAt)}</span>
+                    </div>
+                    {currentSession && (currentSession.user.id === post.author.id || currentSession.user.role === "ADMIN_STAFF" || currentSession.user.role === "PROJECT_STAFF") && (
+                      <button onClick={() => removePost(post.id)} className="group hover:text-red-500 transition" title="Delete post">
+                        <div className="rounded-full p-1.5 group-hover:bg-red-500/10">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><g><path d="M8 5.5V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v1.5h4.5v2h-1.5v13.5c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7.5H3.5v-2H8zm2-1.5v1.5h4V4h-4zM7 7.5v13.5h10V7.5H7zM9.5 10v9h2v-9h-2zm3 0v9h2v-9h-2z"></path></g></svg>
+                        </div>
+                      </button>
+                    )}
                   </div>
                   <p className="mt-1 whitespace-pre-wrap text-[15px] leading-relaxed text-[#0f1419] dark:text-[#e7e9ea]">{post.content}</p>
                   {post.mediaUrl && post.postType === "IMAGE" && (

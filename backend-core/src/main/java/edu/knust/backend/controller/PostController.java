@@ -29,15 +29,17 @@ public class PostController {
     private final PostLikeRepository likes;
     private final ReportRepository reports;
     private final ModerationLogRepository logs;
+    private final CommentLikeRepository commentLikes;
     private final ModerationClient moderationClient;
     private final UserRepository users;
     private final NotificationService notificationService;
 
-    public PostController(PostRepository posts, CommunityRepository communities, CommentRepository comments, PostLikeRepository likes, ReportRepository reports, ModerationLogRepository logs, ModerationClient moderationClient, UserRepository users, NotificationService notificationService) {
+    public PostController(PostRepository posts, CommunityRepository communities, CommentRepository comments, PostLikeRepository likes, CommentLikeRepository commentLikes, ReportRepository reports, ModerationLogRepository logs, ModerationClient moderationClient, UserRepository users, NotificationService notificationService) {
         this.posts = posts;
         this.communities = communities;
         this.comments = comments;
         this.likes = likes;
+        this.commentLikes = commentLikes;
         this.reports = reports;
         this.logs = logs;
         this.moderationClient = moderationClient;
@@ -275,7 +277,26 @@ public class PostController {
         if (!post.getAuthor().getId().equals(viewer.getId()) && !viewer.getRole().name().contains("STAFF")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or a staff member can delete this post");
         }
+        commentLikes.deleteByPostId(postId);
+        comments.deleteByPostId(postId);
+        likes.deleteByPostId(postId);
+        reports.deleteByPostId(postId);
+        logs.deleteByPostId(postId);
         posts.delete(post);
+    }
+
+    @DeleteMapping("/{postId}/comments/{commentId}")
+    @Transactional
+    public void deleteComment(@PathVariable @NonNull Long postId, @PathVariable @NonNull Long commentId, @AuthenticationPrincipal User viewer) {
+        Comment comment = comments.findById(commentId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment does not belong to this post");
+        }
+        if (!comment.getAuthor().getId().equals(viewer.getId()) && !viewer.getRole().name().contains("STAFF")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or a staff member can delete this comment");
+        }
+        commentLikes.deleteByCommentId(commentId);
+        comments.delete(comment);
     }
 
     @PostMapping("/{postId}/comments/{commentId}/likes")

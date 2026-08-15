@@ -3,6 +3,7 @@ package edu.knust.backend.repository;
 import edu.knust.backend.entity.ModerationLog;
 import edu.knust.backend.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -13,4 +14,8 @@ public interface ModerationLogRepository extends JpaRepository<ModerationLog, Lo
 
     @Query("SELECT m FROM ModerationLog m JOIN FETCH m.post p JOIN FETCH p.author ORDER BY m.createdAt DESC")
     List<ModerationLog> findAllWithPosts();
+
+    @Modifying
+    @Query("DELETE FROM ModerationLog m WHERE m.post.id = :postId")
+    void deleteByPostId(Long postId);
 }

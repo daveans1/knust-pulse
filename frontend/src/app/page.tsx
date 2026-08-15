@@ -319,13 +319,16 @@ function Feed() {
   };
 
   const removePost = async (postId: number) => {
-    if (!(await confirm("Delete this post?"))) return;
+    const ok = await confirm("Are you sure you want to delete this post?");
+    if (!ok) return;
     try { 
       await api(`/posts/${postId}`, { method: "DELETE" }); 
-    } catch (err) {
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      toast("Post deleted successfully", "success");
+    } catch (err: any) {
       console.error("Failed to delete post on backend:", err);
+      toast(err?.message || "Failed to delete post", "error");
     }
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -521,9 +524,9 @@ function Feed() {
                     </div>
                     <span>{(post.viewCount ?? 0).toLocaleString()}</span>
                   </div>
-                  {/* Delete own post */}
-                  {session?.user?.id === post.author.id && (
-                    <button onClick={() => removePost(post.id)} className="group hover:text-red-500 transition">
+                  {/* Delete post (author or staff) */}
+                  {session && (session.user.id === post.author.id || session.user.role === "ADMIN_STAFF" || session.user.role === "PROJECT_STAFF") && (
+                    <button onClick={() => removePost(post.id)} className="group hover:text-red-500 transition" title="Delete post">
                       <div className="rounded-full p-2 group-hover:bg-red-500/10">
                         <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-current"><g><path d="M8 5.5V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v1.5h4.5v2h-1.5v13.5c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7.5H3.5v-2H8zm2-1.5v1.5h4V4h-4zM7 7.5v13.5h10V7.5H7zM9.5 10v9h2v-9h-2zm3 0v9h2v-9h-2z"></path></g></svg>
                       </div>
