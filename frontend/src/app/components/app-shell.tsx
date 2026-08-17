@@ -58,6 +58,15 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
         setRecommendedUsers(filtered.slice(0, 8));
       })
       .catch(() => {/* silently skip */});
+
+    // Load who the current user is already following
+    api<number[]>("/users/following")
+      .then((ids) => {
+        if (Array.isArray(ids)) {
+          setFollowed(new Set(ids));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Load + apply saved theme (runs once, before transitions enabled)
@@ -111,12 +120,36 @@ export default function AppShell({ children, fullWidth }: { children: React.Reac
     router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
 
-  const toggleFollow = (id: number) => {
+  const toggleFollow = async (id: number) => {
+    const wasFollowing = followed.has(id);
     setFollowed((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (wasFollowing) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
+
+    try {
+      if (wasFollowing) {
+        await api(`/users/${id}/follow`, { method: "DELETE" });
+      } else {
+        await api(`/users/${id}/follow`, { method: "POST" });
+      }
+    } catch {
+      // Revert on error
+      setFollowed((prev) => {
+        const next = new Set(prev);
+        if (wasFollowing) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+        return next;
+      });
+    }
   };
 
   const isAdmin = user?.role === "ADMIN_STAFF" || user?.role === "PROJECT_STAFF";

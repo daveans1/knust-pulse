@@ -89,19 +89,29 @@ export default function ProfileView({ userId }: { userId?: number }) {
     const wasFollowing = following;
     // Optimistic
     setFollowing(!wasFollowing);
-    setFollowersCount((prev) => wasFollowing ? prev - 1 : prev + 1);
-    // Persist locally
-    toggleFollow(targetId!, currentId);
+    setFollowersCount((prev) => wasFollowing ? Math.max(0, prev - 1) : prev + 1);
+
     try {
+      let updatedProfile: UserProfileResponse;
       if (wasFollowing) {
-        await api(`/users/${targetId}/follow`, { method: "DELETE" });
+        updatedProfile = await api<UserProfileResponse>(`/users/${targetId}/follow`, { method: "DELETE" });
       } else {
-        await api(`/users/${targetId}/follow`, { method: "POST" });
+        updatedProfile = await api<UserProfileResponse>(`/users/${targetId}/follow`, { method: "POST" });
       }
-    } catch {
-      // Already updated locally — fine
+      if (updatedProfile) {
+        setFollowing(updatedProfile.isFollowing);
+        setFollowersCount(updatedProfile.followersCount);
+        setProfile(updatedProfile);
+      }
+      toast(wasFollowing ? "Unfollowed user" : "Followed user", "success");
+    } catch (err: any) {
+      // Revert on error
+      setFollowing(wasFollowing);
+      setFollowersCount((prev) => wasFollowing ? prev + 1 : Math.max(0, prev - 1));
+      toast(err?.message || "Failed to update follow status", "error");
     }
   };
+
 
   return (
     <AppShell>

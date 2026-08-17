@@ -35,8 +35,24 @@ public class UserController {
             .toList();
     }
 
+    @GetMapping("/following")
+    public List<Long> followingList(@AuthenticationPrincipal User viewer) {
+        if (viewer == null) return List.of();
+        return follows.findFollowingIdsByUserId(viewer.getId());
+    }
+
     @GetMapping("/{userId}")
-    public UserProfileResponse profile(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) { User user = find(userId); return new UserProfileResponse(ApiMapper.user(user), posts.countByAuthorIdAndStatus(userId, PostStatus.PUBLISHED), likes.countLikesReceivedByAuthorId(userId), follows.countByFollowingId(userId), follows.countByFollowerId(userId), viewer != null && follows.existsByFollowerIdAndFollowingId(viewer.getId(), userId)); }
+    public UserProfileResponse profile(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) {
+        User user = find(userId);
+        return new UserProfileResponse(
+            ApiMapper.user(user),
+            posts.countByAuthorIdAndStatus(userId, PostStatus.PUBLISHED),
+            likes.countLikesReceivedByAuthorId(userId),
+            follows.countFollowersByUserId(userId),
+            follows.countFollowingByUserId(userId),
+            viewer != null && follows.isFollowing(viewer.getId(), userId)
+        );
+    }
 
     @GetMapping("/{userId}/basic")
     public edu.knust.backend.dto.UserSummary basicProfile(@PathVariable @NonNull Long userId) {
@@ -44,26 +60,31 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/posts")
-    public List<FeedPostResponse> userPosts(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) { return posts.findByAuthorIdAndStatusWithAuthor(userId, PostStatus.PUBLISHED).stream().map(post -> toFeed(post, viewer)).toList(); }
+    public List<FeedPostResponse> userPosts(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) {
+        return posts.findByAuthorIdAndStatusWithAuthor(userId, PostStatus.PUBLISHED).stream().map(post -> toFeed(post, viewer)).toList();
+    }
 
     @PostMapping("/{userId}/follow")
     @Transactional
-    public void follow(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) {
+    public UserProfileResponse follow(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) {
         if (viewer.getId().equals(userId)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot follow yourself");
         User target = find(userId);
-        if (!follows.existsByFollowerIdAndFollowingId(viewer.getId(), userId)) {
+        if (!follows.isFollowing(viewer.getId(), userId)) {
             Follow follow = new Follow();
+            follow.setId(new FollowId(viewer.getId(), target.getId()));
             follow.setFollower(viewer);
             follow.setFollowing(target);
             follow.setCreatedAt(LocalDateTime.now());
             follows.save(follow);
         }
+        return profile(userId, viewer);
     }
 
     @DeleteMapping("/{userId}/follow")
     @Transactional
-    public void unfollow(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) {
-        follows.findById(new FollowId(viewer.getId(), userId)).ifPresent(follows::delete);
+    public UserProfileResponse unfollow(@PathVariable @NonNull Long userId, @AuthenticationPrincipal User viewer) {
+        follows.deleteByFollowerIdAndFollowingId(viewer.getId(), userId);
+        return profile(userId, viewer);
     }
 
     private User find(@NonNull Long id) { return users.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")); }

@@ -80,10 +80,11 @@ public class PostController {
         int currentViolations = author.getViolationCount() != null ? author.getViolationCount() : 0;
         ModerationEngineResponse aiResponse = moderationClient.moderateText(post.getContent(), author.getId(), currentViolations, false);
         if (aiResponse != null) {
-            String action = aiResponse.action();
+            boolean isRemoveAction = isRemove(aiResponse);
+            boolean isReviewAction = isReview(aiResponse);
             boolean userPenalized = false;
 
-            if ("REMOVE".equals(action)) {
+            if (isRemoveAction) {
                 post.setStatus(PostStatus.REMOVED);
                 author.setViolationCount(currentViolations + 2);
                 userPenalized = true;
@@ -94,7 +95,7 @@ public class PostController {
                     "content", post.getContent(),
                     "reason", aiResponse.triggered_categories() != null && !aiResponse.triggered_categories().isEmpty() ? aiResponse.triggered_categories().get(0) : "Severe violation"
                 ));
-            } else if ("REVIEW".equals(action)) {
+            } else if (isReviewAction) {
                 post.setStatus(PostStatus.FLAGGED);
                 author.setViolationCount(currentViolations + 1);
                 userPenalized = true;
@@ -232,14 +233,15 @@ public class PostController {
         logs.save(log);
 
         if (aiResponse != null) {
-            String action = aiResponse.action();
+            boolean isRemoveAction = isRemove(aiResponse);
+            boolean isReviewAction = isReview(aiResponse);
             boolean userPenalized = false;
 
-            if ("REMOVE".equals(action)) {
+            if (isRemoveAction) {
                 author.setViolationCount(currentViolations + 2);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.REMOVED);
-            } else if ("REVIEW".equals(action)) {
+            } else if (isReviewAction) {
                 author.setViolationCount(currentViolations + 1);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.FLAGGED);
@@ -305,6 +307,25 @@ public class PostController {
         Comment comment = comments.findById(commentId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
         if (!comment.getPost().getId().equals(postId)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment does not belong to this post");
         return ApiMapper.comment(comments.save(comment));
+    }
+
+    private boolean isRemove(ModerationEngineResponse ai) {
+        if (ai == null) return false;
+        String a = ai.action();
+        String t = ai.priority_tier();
+        String s = ai.post_status();
+        return "REMOVE".equalsIgnoreCase(a) || "urgent_escalate".equalsIgnoreCase(a)
+                || "REMOVED".equalsIgnoreCase(s) || "1".equals(t);
+    }
+
+    private boolean isReview(ModerationEngineResponse ai) {
+        if (ai == null) return false;
+        String a = ai.action();
+        String t = ai.priority_tier();
+        String s = ai.post_status();
+        return "REVIEW".equalsIgnoreCase(a) || "remove_review".equalsIgnoreCase(a)
+                || "hide_review".equalsIgnoreCase(a) || "FLAGGED".equalsIgnoreCase(s)
+                || "2".equals(t) || "3".equals(t);
     }
 
     private Post findPost(@NonNull Long id) { return posts.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found")); }

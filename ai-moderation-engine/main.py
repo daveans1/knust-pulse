@@ -257,19 +257,19 @@ def moderate_text(req: ModerationRequest) -> ModerationResult:
     
     if overall >= 85:
         tier = "1"
-        action = "urgent_escalate"
+        action = "REMOVE"
         status = "REMOVED"
     elif overall >= 65:
         tier = "2"
-        action = "remove_review"
+        action = "REVIEW"
         status = "FLAGGED"
     elif overall >= 40:
         tier = "3"
-        action = "hide_review"
-        status = "PUBLISHED"
+        action = "REVIEW"
+        status = "FLAGGED"
     else:
         tier = "4"
-        action = "allow"
+        action = "ALLOW"
         status = "PUBLISHED"
         
     # Fallback if no specific flagged reason

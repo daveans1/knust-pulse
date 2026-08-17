@@ -74,14 +74,15 @@ public class MessageController {
         logs.save(log);
 
         if (aiResponse != null) {
-            String action = aiResponse.action();
+            boolean isRemoveAction = isRemove(aiResponse);
+            boolean isReviewAction = isReview(aiResponse);
             boolean userPenalized = false;
             
-            if ("REMOVE".equals(action)) {
+            if (isRemoveAction) {
                 sender.setViolationCount(currentViolations + 2);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.REMOVED);
-            } else if ("REVIEW".equals(action)) {
+            } else if (isReviewAction) {
                 sender.setViolationCount(currentViolations + 1);
                 userPenalized = true;
                 log.setFinalDecision(edu.knust.backend.model.PostStatus.FLAGGED);
@@ -115,4 +116,24 @@ public class MessageController {
         if (!msg.getSender().getId().equals(user.getId())) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own messages");
         messages.delete(msg);
     }
+
+    private boolean isRemove(ModerationEngineResponse ai) {
+        if (ai == null) return false;
+        String a = ai.action();
+        String t = ai.priority_tier();
+        String s = ai.post_status();
+        return "REMOVE".equalsIgnoreCase(a) || "urgent_escalate".equalsIgnoreCase(a)
+                || "REMOVED".equalsIgnoreCase(s) || "1".equals(t);
+    }
+
+    private boolean isReview(ModerationEngineResponse ai) {
+        if (ai == null) return false;
+        String a = ai.action();
+        String t = ai.priority_tier();
+        String s = ai.post_status();
+        return "REVIEW".equalsIgnoreCase(a) || "remove_review".equalsIgnoreCase(a)
+                || "hide_review".equalsIgnoreCase(a) || "FLAGGED".equalsIgnoreCase(s)
+                || "2".equals(t) || "3".equals(t);
+    }
 }
+
